@@ -1,54 +1,135 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import Login from './components/Login';
+import TesterProfile from './components/TesterProfile';
+import Dashboard from './components/Dashboard';
 import CPTTask from './components/CPTTask';
 import GoNoGoTask from './components/GoNoGoTask';
 import NBackTask from './components/NBackTask';
 import FlankerTask from './components/FlankerTask';
 import TrailMakingTask from './components/TrailMakingTask';
 
-function App() {
-  const [currentTask, setCurrentTask] = useState(null);
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  const { currentUser, loading } = useAuth();
 
-  const tasks = [
-    { id: 'cpt', name: 'Continuous Performance Task', component: CPTTask },
-    { id: 'gonogo', name: 'Go/No-Go Task', component: GoNoGoTask },
-    { id: 'nback', name: 'N-Back Task', component: NBackTask },
-    { id: 'flanker', name: 'Flanker Task', component: FlankerTask },
-    { id: 'trailmaking', name: 'Trail-Making Task', component: TrailMakingTask },
-  ];
-
-  if (currentTask) {
-    const task = tasks.find(t => t.id === currentTask);
-    const TaskComponent = task.component;
-    return (
-      <div className="app-container">
-        <button className="back-button" onClick={() => setCurrentTask(null)}>
-          ← Back to Menu
-        </button>
-        <TaskComponent />
-      </div>
-    );
+  if (loading) {
+    return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>Loading...</div>;
   }
 
+  if (!currentUser) {
+    return <Navigate to="/" />;
+  }
+
+  return children;
+};
+
+// Task Wrapper with back button
+const TaskWrapper = ({ children }) => {
   return (
-    <div className="app-container">
-      <div className="menu">
-        <h1>ADHD Assessment Suite</h1>
-        <p className="subtitle">Digital Cognitive Tasks</p>
-        <div className="task-grid">
-          {tasks.map(task => (
-            <button
-              key={task.id}
-              className="task-button"
-              onClick={() => setCurrentTask(task.id)}
-            >
-              <div className="task-icon">📋</div>
-              <div className="task-name">{task.name}</div>
-            </button>
-          ))}
-        </div>
-      </div>
+    <div className="task-wrapper">
+      <a href="/dashboard" className="back-button">← Back to Dashboard</a>
+      {children}
     </div>
+  );
+};
+
+function AppContent() {
+  return (
+    <Routes>
+      <Route path="/" element={<Login />} />
+      
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <TesterProfile />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Task Routes */}
+      <Route
+        path="/tasks/cpt"
+        element={
+          <ProtectedRoute>
+            <TaskWrapper>
+              <CPTTask />
+            </TaskWrapper>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/tasks/gonogo"
+        element={
+          <ProtectedRoute>
+            <TaskWrapper>
+              <GoNoGoTask />
+            </TaskWrapper>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/tasks/nback"
+        element={
+          <ProtectedRoute>
+            <TaskWrapper>
+              <NBackTask />
+            </TaskWrapper>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/tasks/flanker"
+        element={
+          <ProtectedRoute>
+            <TaskWrapper>
+              <FlankerTask />
+            </TaskWrapper>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/tasks/trail"
+        element={
+          <ProtectedRoute>
+            <TaskWrapper>
+              <TrailMakingTask />
+            </TaskWrapper>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>Loading...</div>}>
+          <AppContent />
+        </Suspense>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
