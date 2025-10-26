@@ -15,11 +15,17 @@ const CPTTask = () => {
   const [stimulusCount, setStimulusCount] = useState(0);
   const [targetLetter] = useState('X');
   
-  // Results tracking
+  // Results tracking - use refs for accurate values
   const [hits, setHits] = useState(0);
   const [misses, setMisses] = useState(0);
   const [falseAlarms, setFalseAlarms] = useState(0);
   const [reactionTimes, setReactionTimes] = useState([]);
+  
+  // Refs to track actual current values (not stale closures)
+  const hitsRef = useRef(0);
+  const missesRef = useRef(0);
+  const falseAlarmsRef = useRef(0);
+  const reactionTimesRef = useRef([]);
   
   // State variables
   const stimulusStartTimeRef = useRef(null);
@@ -38,6 +44,13 @@ const CPTTask = () => {
     setMisses(0);
     setFalseAlarms(0);
     setReactionTimes([]);
+    
+    // Initialize refs
+    hitsRef.current = 0;
+    missesRef.current = 0;
+    falseAlarmsRef.current = 0;
+    reactionTimesRef.current = [];
+    
     setStimulusCount(0);
     currentCountRef.current = 0;
     presentNextStimulus();
@@ -81,10 +94,13 @@ const CPTTask = () => {
 
     if (currentStimulus === targetLetter) {
       // Hit: correct response to target
+      hitsRef.current += 1;
       setHits(prev => prev + 1);
+      reactionTimesRef.current.push(reactionTime);
       setReactionTimes(prev => [...prev, reactionTime]); // Only track RT for hits
     } else {
       // False alarm: responded to non-target
+      falseAlarmsRef.current += 1;
       setFalseAlarms(prev => prev + 1);
     }
 
@@ -109,6 +125,7 @@ const CPTTask = () => {
       timerFired = true;
       // Only count as miss if user didn't respond AND it was a target
       if (!respondedRef.current && isTargetRef.current) {
+        missesRef.current += 1;
         setMisses(prev => prev + 1);
       }
       setCurrentStimulus('');
@@ -117,6 +134,7 @@ const CPTTask = () => {
     return () => {
       // If timer didn't fire (stimulus changed by user response), only count miss if no response and was target
       if (!timerFired && !respondedRef.current && isTargetRef.current) {
+        missesRef.current += 1;
         setMisses(prev => prev + 1);
       }
       if (stimulusTimeoutRef.current) clearTimeout(stimulusTimeoutRef.current);
@@ -156,35 +174,53 @@ const CPTTask = () => {
   }, [taskStarted, taskFinished, currentStimulus]);
 
   const finishTask = () => {
-    setTaskFinished(true);
-    setTaskStarted(false);
-    setCurrentStimulus('');
-    clearTimeout(stimulusTimeoutRef.current);
-    clearTimeout(taskIntervalRef.current);
+    try {
+      console.log('🏁 finishTask called');
+      console.log('hitsRef.current:', hitsRef.current);
+      console.log('missesRef.current:', missesRef.current);
+      console.log('falseAlarmsRef.current:', falseAlarmsRef.current);
+      console.log('reactionTimesRef.current:', reactionTimesRef.current);
+      console.log('totalStimuliRef.current:', totalStimuliRef.current);
+      
+      setTaskFinished(true);
+      setTaskStarted(false);
+      setCurrentStimulus('');
+      clearTimeout(stimulusTimeoutRef.current);
+      clearTimeout(taskIntervalRef.current);
 
-    const totalTrials = totalStimuliRef.current;
-    const totalTargets = Math.round(totalTrials * targetProbabilityRef.current);
-    const totalNonTargets = totalTrials - totalTargets;
-    const correctRejections = totalNonTargets - falseAlarms;
-    
-    // Accuracy = (Hits + Correct Rejections) / Total Trials
-    const accuracy = hits + misses > 0 ? Math.round((hits / (hits + misses)) * 100) : 0;
-    const avgRT = reactionTimes.length > 0 ? calculateAverageReactionTime(reactionTimes) : 0;
+      const totalTrials = totalStimuliRef.current;
+      const totalTargets = Math.round(totalTrials * targetProbabilityRef.current);
+      const totalNonTargets = totalTrials - totalTargets;
+      const correctRejections = totalNonTargets - falseAlarmsRef.current;
+      
+      console.log('totalTrials:', totalTrials, 'totalTargets:', totalTargets);
+      
+      // Accuracy = (Hits / Targets) * 100
+      const accuracy = hitsRef.current + missesRef.current > 0 ? Math.round((hitsRef.current / (hitsRef.current + missesRef.current)) * 100) : 0;
+      
+      // calculateAverageReactionTime now returns a number (not a string)
+      const avgRTNum = reactionTimesRef.current.length > 0 ? calculateAverageReactionTime(reactionTimesRef.current) : 0;
 
-    const results = {
-      totalTrials,
-      totalTargets,
-      totalNonTargets,
-      hits,
-      misses,
-      falseAlarms,
-      correctRejections,
-      accuracy,
-      avgReactionTimeMs: parseFloat(avgRT.toFixed(2)),
-      reactionTimesMs: reactionTimes.map(rt => parseFloat(rt.toFixed(2)))
-    };
+      const results = {
+        totalTrials,
+        totalTargets,
+        totalNonTargets,
+        hits: hitsRef.current,
+        misses: missesRef.current,
+        falseAlarms: falseAlarmsRef.current,
+        correctRejections,
+        accuracy,
+        avgReactionTimeMs: avgRTNum,
+        reactionTimesMs: reactionTimesRef.current.map(rt => parseFloat(rt.toFixed(2)))
+      };
 
-    logResults('Continuous Performance Task (CPT)', results);
+      console.log('📊 CPT Results object:', results);
+      logResults('Continuous Performance Task (CPT)', results);
+      console.log('✅ logResults called for CPT');
+    } catch (error) {
+      console.error('❌ ERROR in finishTask:', error);
+      console.error('Stack:', error.stack);
+    }
   };
 
   const resetTask = () => {

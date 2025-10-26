@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import TaskDetailsModal from './TaskDetailsModal';
+import ResultsPanel from './ResultsPanel';
+import ChatbotPopup from './ChatbotPopup';
+import AIProfileGenerator from './AIProfileGenerator';
 import '../styles/dashboard.css';
 
 const Dashboard = () => {
@@ -10,6 +13,7 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('tasks');
   const [selectedTask, setSelectedTask] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isProfileGeneratorOpen, setIsProfileGeneratorOpen] = useState(false);
 
   useEffect(() => {
     // Redirect if not authenticated
@@ -162,6 +166,13 @@ const Dashboard = () => {
             >
               📈 Your Results
             </button>
+            <button
+              className="btn btn-primary profile-gen-btn"
+              onClick={() => setIsProfileGeneratorOpen(true)}
+              title="Generate AI cognitive profile report"
+            >
+              🧠 AI Cognitive Profile
+            </button>
           </div>
 
           {/* Tasks Tab */}
@@ -211,18 +222,7 @@ const Dashboard = () => {
           {/* Results Tab */}
           {activeTab === 'results' && (
             <div className="tab-content">
-              <div className="empty-state">
-                <div className="empty-icon">📊</div>
-                <h3>No Results Yet</h3>
-                <p>Complete a task to see your results here</p>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => setActiveTab('tasks')}
-                  style={{ marginTop: '20px' }}
-                >
-                  Go to Tasks
-                </button>
-              </div>
+              <ResultsPanel />
             </div>
           )}
         </div>
@@ -239,6 +239,15 @@ const Dashboard = () => {
         isOpen={isModalOpen} 
         onClose={handleCloseModal}
       />
+
+      {/* AI Cognitive Profile Generator Modal */}
+      <AIProfileGenerator 
+        isOpen={isProfileGeneratorOpen}
+        onClose={() => setIsProfileGeneratorOpen(false)}
+      />
+
+      {/* AI Chatbot Popup */}
+      <ChatbotPopup />
     </div>
   );
 };

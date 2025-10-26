@@ -18,6 +18,11 @@ const TrailMakingTask = () => {
   const [errors, setErrors] = useState(0);
   const [completedSequence, setCompletedSequence] = useState([]);
   
+  // Refs for accurate result tracking (to avoid stale closures)
+  const nextExpectedIndexRef = useRef(0);
+  const errorsRef = useRef(0);
+  const completedSequenceRef = useRef([]);
+  
   // State variables
   const startTimeRef = useRef(null);
   const endTimeRef = useRef(null);
@@ -55,23 +60,32 @@ const TrailMakingTask = () => {
     setNextExpectedIndex(0);
     setErrors(0);
     setCompletedSequence([]);
+    
+    // Initialize refs
+    nextExpectedIndexRef.current = 0;
+    errorsRef.current = 0;
+    completedSequenceRef.current = [];
+    
     startTimeRef.current = performance.now();
   };
 
   const handleItemClick = (item) => {
     if (!taskStarted || taskFinished) return;
 
-    if (item.index === nextExpectedIndex) {
+    if (item.index === nextExpectedIndexRef.current) {
       // Correct item clicked
+      completedSequenceRef.current.push(item.label);
       setCompletedSequence(prev => [...prev, item.label]);
+      nextExpectedIndexRef.current += 1;
       setNextExpectedIndex(prev => prev + 1);
 
       // Check if task is complete
-      if (nextExpectedIndex + 1 === totalItemsRef.current) {
+      if (nextExpectedIndexRef.current === totalItemsRef.current) {
         finishTask();
       }
     } else {
       // Wrong item clicked
+      errorsRef.current += 1;
       setErrors(prev => prev + 1);
     }
   };
@@ -87,10 +101,10 @@ const TrailMakingTask = () => {
       totalItems: totalItemsRef.current,
       completionTime,
       completionTimeSeconds: (completionTime / 1000).toFixed(2),
-      errors,
+      errors: errorsRef.current,
       timePerItem: (completionTime / totalItemsRef.current).toFixed(2),
-      sequence: completedSequence.join(' → '),
-      accuracy: (((totalItemsRef.current - errors) / totalItemsRef.current) * 100).toFixed(2)
+      sequence: completedSequenceRef.current.join(' → '),
+      accuracy: (((totalItemsRef.current - errorsRef.current) / totalItemsRef.current) * 100).toFixed(2)
     };
 
     logResults('Trail-Making / Sorting Task', results);

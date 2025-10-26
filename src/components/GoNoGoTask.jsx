@@ -24,6 +24,15 @@ const GoNoGoTask = () => {
   const [correctReject, setCorrectReject] = useState(0); // Didn't respond to No-Go
   const [reactionTimes, setReactionTimes] = useState([]);
   
+  // Refs for accurate result tracking (to avoid stale closures)
+  const goTrialsRef = useRef(0);
+  const nogoTrialsRef = useRef(0);
+  const correctGoRef = useRef(0);
+  const omissionErrorsRef = useRef(0);
+  const commissionErrorsRef = useRef(0);
+  const correctRejectRef = useRef(0);
+  const reactionTimesRef = useRef([]);
+  
   // State variables
   const stimulusStartTimeRef = useRef(null);
   const stimulusTimeoutRef = useRef(null);
@@ -44,6 +53,16 @@ const GoNoGoTask = () => {
     setCorrectReject(0);
     setReactionTimes([]);
     setStimulusCount(0);
+    
+    // Initialize refs
+    goTrialsRef.current = 0;
+    nogoTrialsRef.current = 0;
+    correctGoRef.current = 0;
+    omissionErrorsRef.current = 0;
+    commissionErrorsRef.current = 0;
+    correctRejectRef.current = 0;
+    reactionTimesRef.current = [];
+    
     currentCountRef.current = 0;
     presentNextStimulus();
   };
@@ -67,8 +86,10 @@ const GoNoGoTask = () => {
     stimulusStartTimeRef.current = performance.now();
     
     if (isGo) {
+      goTrialsRef.current += 1;
       setGoTrials(prev => prev + 1);
     } else {
+      nogoTrialsRef.current += 1;
       setNogoTrials(prev => prev + 1);
     }
     
@@ -93,9 +114,11 @@ const GoNoGoTask = () => {
       if (!respondedRef.current) {
         if (wasGo) {
           // Go trial with no response = omission error
+          omissionErrorsRef.current += 1;
           setOmissionErrors(prev => prev + 1);
         } else {
           // No-Go trial with no response = correct rejection
+          correctRejectRef.current += 1;
           setCorrectReject(prev => prev + 1);
         }
       }
@@ -135,10 +158,13 @@ const GoNoGoTask = () => {
 
     if (currentStimulus === 'go') {
       // Go trial with response = correct - track RT only for correct Go responses
+      correctGoRef.current += 1;
       setCorrectGo(prev => prev + 1);
+      reactionTimesRef.current.push(reactionTime);
       setReactionTimes(prev => [...prev, reactionTime]);
     } else {
       // No-Go trial with response = commission error - don't track RT
+      commissionErrorsRef.current += 1;
       setCommissionErrors(prev => prev + 1);
     }
 
@@ -177,21 +203,22 @@ const GoNoGoTask = () => {
     clearTimeout(taskIntervalRef.current);
 
     const totalTrials = totalStimuliRef.current;
-    const goAccuracy = calculateAccuracy(correctGo, goTrials);
-    const nogoAccuracy = calculateAccuracy(correctReject, nogoTrials);
+    const goAccuracy = calculateAccuracy(correctGoRef.current, goTrialsRef.current);
+    const nogoAccuracy = calculateAccuracy(correctRejectRef.current, nogoTrialsRef.current);
+    const avgRT = calculateAverageReactionTime(reactionTimesRef.current);
 
     const results = {
       totalTrials,
-      goTrials,
-      nogoTrials,
-      correctGo,
-      omissionErrors,
-      commissionErrors,
-      correctReject,
+      goTrials: goTrialsRef.current,
+      nogoTrials: nogoTrialsRef.current,
+      correctGo: correctGoRef.current,
+      omissionErrors: omissionErrorsRef.current,
+      commissionErrors: commissionErrorsRef.current,
+      correctReject: correctRejectRef.current,
       goAccuracy,
       nogoAccuracy,
-      averageReactionTime: calculateAverageReactionTime(reactionTimes),
-      reactionTimes
+      averageReactionTime: avgRT,
+      reactionTimes: reactionTimesRef.current
     };
 
     logResults('Go/No-Go Task', results);

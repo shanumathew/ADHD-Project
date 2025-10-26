@@ -24,6 +24,13 @@ const NBackTask = () => {
   const [correctRejections, setCorrectRejections] = useState(0);
   const [reactionTimes, setReactionTimes] = useState([]);
   
+  // Refs for accurate result tracking (to avoid stale closures)
+  const hitsRef = useRef(0);
+  const missesRef = useRef(0);
+  const falseAlarmsRef = useRef(0);
+  const correctRejectionsRef = useRef(0);
+  const reactionTimesRef = useRef([]);
+  
   // State variables
   const stimulusStartTimeRef = useRef(null);
   const stimulusTimeoutRef = useRef(null);
@@ -57,6 +64,14 @@ const NBackTask = () => {
     setCorrectRejections(0);
     setReactionTimes([]);
     setStimulusIndex(0);
+    
+    // Initialize refs
+    hitsRef.current = 0;
+    missesRef.current = 0;
+    falseAlarmsRef.current = 0;
+    correctRejectionsRef.current = 0;
+    reactionTimesRef.current = [];
+    
     currentCountRef.current = 0;
     respondedRef.current = false;
     presentNextStimulus(sequence, 0);
@@ -150,10 +165,13 @@ const NBackTask = () => {
 
     if (shouldMatch) {
       // Correct response to a match - track RT only for hits
+      hitsRef.current += 1;
       setHits(prev => prev + 1);
+      reactionTimesRef.current.push(reactionTime);
       setReactionTimes(prev => [...prev, reactionTime]);
     } else {
       // Wrong response (no match but user said there was)
+      falseAlarmsRef.current += 1;
       setFalseAlarms(prev => prev + 1);
     }
 
@@ -175,10 +193,13 @@ const NBackTask = () => {
 
     if (!shouldMatch) {
       // Correct response to non-match - track RT only for correct rejections
+      correctRejectionsRef.current += 1;
       setCorrectRejections(prev => prev + 1);
+      reactionTimesRef.current.push(reactionTime);
       setReactionTimes(prev => [...prev, reactionTime]);
     } else {
       // Wrong response (there was a match but user said no)
+      missesRef.current += 1;
       setMisses(prev => prev + 1);
     }
 
@@ -229,22 +250,24 @@ const NBackTask = () => {
 
     // Calculate accuracy as correct responses / total trials
     // (Correct = hits + correct rejections)
-    const accuracy = hits + correctRejections + misses + falseAlarms > 0 
-      ? Math.round(((hits + correctRejections) / (hits + correctRejections + misses + falseAlarms)) * 100)
+    const accuracy = hitsRef.current + correctRejectionsRef.current + missesRef.current + falseAlarmsRef.current > 0 
+      ? Math.round(((hitsRef.current + correctRejectionsRef.current) / (hitsRef.current + correctRejectionsRef.current + missesRef.current + falseAlarmsRef.current)) * 100)
       : 0;
+
+    const avgRT = calculateAverageReactionTime(reactionTimesRef.current);
 
     const results = {
       nBackLevel,
       totalTrials,
-      hits,
-      misses,
-      falseAlarms,
-      correctRejections,
+      hits: hitsRef.current,
+      misses: missesRef.current,
+      falseAlarms: falseAlarmsRef.current,
+      correctRejections: correctRejectionsRef.current,
       totalMatches,
       accuracy,
-      averageReactionTime: calculateAverageReactionTime(reactionTimes),
-      averageReactionTimeMs: reactionTimes.length > 0 ? calculateAverageReactionTime(reactionTimes) : 'N/A',
-      reactionTimesMs: reactionTimes,
+      averageReactionTime: avgRT,
+      averageReactionTimeMs: avgRT,
+      reactionTimesMs: reactionTimesRef.current,
       sequence: stimulusSequence.join('')
     };
 

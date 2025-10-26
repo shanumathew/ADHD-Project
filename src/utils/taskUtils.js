@@ -12,15 +12,80 @@ export const logResults = (taskName, results) => {
   
   // Log to console
   console.log(`[${taskName}] Results:`, logEntry);
+  console.log('📝 Attempting to save results for task:', taskName);
   
   // Save to localStorage
   try {
     const existingData = JSON.parse(localStorage.getItem('adhd_assessment_results') || '[]');
     existingData.push(logEntry);
     localStorage.setItem('adhd_assessment_results', JSON.stringify(existingData));
+    console.log('✅ Saved to localStorage');
+    
+    // Emit custom event to notify ResultsPanel to refresh
+    window.dispatchEvent(new Event('resultsUpdated'));
   } catch (error) {
     console.error('Error saving to localStorage:', error);
   }
+
+  // Also save to Firestore (if configured)
+  (async () => {
+    try {
+      console.log('🔄 Starting Firestore save...');
+      
+      const fb = await import('../firebase');
+      const firestore = await import('firebase/firestore');
+      const db = fb.db;
+      const auth = fb.auth;
+      
+      console.log('📦 Firebase imported, db:', db ? '✓' : '✗', 'auth:', auth ? '✓' : '✗');
+
+      // Wait a moment for auth to be ready
+      let user = auth?.currentUser;
+      let retries = 0;
+      
+      while (!user && retries < 5) {
+        console.log('⏳ Waiting for auth to be ready... (attempt', retries + 1, ')');
+        await new Promise(r => setTimeout(r, 500));
+        user = auth?.currentUser;
+        retries++;
+      }
+
+      console.log('👤 Current user:', user?.uid, 'Email:', user?.email);
+
+      if (!user) {
+        console.error('❌ No authenticated user found after retries');
+        return;
+      }
+
+      const docData = {
+        userId: user.uid,
+        email: user.email || 'no-email',
+        displayName: user.displayName || 'User',
+        taskName,
+        results,
+        recordedAt: firestore.serverTimestamp()
+      };
+
+      console.log('💾 Saving document:', docData);
+
+      const docRef = await firestore.addDoc(
+        firestore.collection(db, 'results'),
+        docData
+      );
+      
+      console.log('✅ Result saved to Firestore with ID:', docRef.id);
+      console.log('🎉 Full path: results/', docRef.id);
+      
+      // Emit event after Firestore save
+      window.dispatchEvent(new Event('resultsUpdated'));
+      
+    } catch (err) {
+      console.error('❌ Error in Firestore save:', err);
+      console.error('Error name:', err.name);
+      console.error('Error message:', err.message);
+      console.error('Error code:', err.code);
+    }
+  })();
   
   return logEntry;
 };
@@ -49,13 +114,13 @@ export const downloadResults = () => {
 };
 
 export const calculateAccuracy = (correct, total) => {
-  return total === 0 ? 0 : ((correct / total) * 100).toFixed(2);
+  return total === 0 ? 0 : parseFloat(((correct / total) * 100).toFixed(2));
 };
 
 export const calculateAverageReactionTime = (times) => {
   if (times.length === 0) return 0;
   const sum = times.reduce((acc, val) => acc + val, 0);
-  return (sum / times.length).toFixed(2);
+  return parseFloat((sum / times.length).toFixed(2));
 };
 
 export const getRandomElement = (array) => {

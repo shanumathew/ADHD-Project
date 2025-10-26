@@ -24,6 +24,15 @@ const FlankerTask = () => {
   const [congruentRTimes, setCongruentRTimes] = useState([]);
   const [incongruentRTimes, setIncongruentRTimes] = useState([]);
   
+  // Refs for accurate result tracking (to avoid stale closures)
+  const congruentCorrectRef = useRef(0);
+  const congruentTotalRef = useRef(0);
+  const incongruentCorrectRef = useRef(0);
+  const incongruentTotalRef = useRef(0);
+  const reactionTimesRef = useRef([]);
+  const congruentRTimesRef = useRef([]);
+  const incongruentRTimesRef = useRef([]);
+  
   // State variables
   const stimulusStartTimeRef = useRef(null);
   const stimulusTimeoutRef = useRef(null);
@@ -71,6 +80,16 @@ const FlankerTask = () => {
     setCongruentRTimes([]);
     setIncongruentRTimes([]);
     setTrialIndex(0);
+    
+    // Initialize refs
+    congruentCorrectRef.current = 0;
+    congruentTotalRef.current = 0;
+    incongruentCorrectRef.current = 0;
+    incongruentTotalRef.current = 0;
+    reactionTimesRef.current = [];
+    congruentRTimesRef.current = [];
+    incongruentRTimesRef.current = [];
+    
     currentCountRef.current = 0;
     presentNextTrial(0);
   };
@@ -146,15 +165,25 @@ const FlankerTask = () => {
     const isCorrect = direction === currentTrial.correctAnswer;
 
     if (currentTrial.isCongruent) {
+      congruentTotalRef.current += 1;
+      setCongruentTotal(prev => prev + 1);
       if (isCorrect) {
+        congruentCorrectRef.current += 1;
         setCongruentCorrect(prev => prev + 1);
+        reactionTimesRef.current.push(reactionTime);
         setReactionTimes(prev => [...prev, reactionTime]);
+        congruentRTimesRef.current.push(reactionTime);
         setCongruentRTimes(prev => [...prev, reactionTime]);
       }
     } else {
+      incongruentTotalRef.current += 1;
+      setIncongruentTotal(prev => prev + 1);
       if (isCorrect) {
+        incongruentCorrectRef.current += 1;
         setIncongruentCorrect(prev => prev + 1);
+        reactionTimesRef.current.push(reactionTime);
         setReactionTimes(prev => [...prev, reactionTime]);
+        incongruentRTimesRef.current.push(reactionTime);
         setIncongruentRTimes(prev => [...prev, reactionTime]);
       }
     }
@@ -199,25 +228,25 @@ const FlankerTask = () => {
     clearTimeout(stimulusTimeoutRef.current);
     clearTimeout(taskIntervalRef.current);
 
-    const totalCorrect = congruentCorrect + incongruentCorrect;
+    const totalCorrect = congruentCorrectRef.current + incongruentCorrectRef.current;
     const totalTrials = totalTrialsRef.current;
-    const congruencyEffect = calculateAverageReactionTime(incongruentRTimes) - calculateAverageReactionTime(congruentRTimes);
+    const congruencyEffect = calculateAverageReactionTime(incongruentRTimesRef.current) - calculateAverageReactionTime(congruentRTimesRef.current);
 
     const results = {
       totalTrials,
-      congruentTotal,
-      incongruentTotal,
-      congruentCorrect,
-      incongruentCorrect,
+      congruentTotal: congruentTotalRef.current,
+      incongruentTotal: incongruentTotalRef.current,
+      congruentCorrect: congruentCorrectRef.current,
+      incongruentCorrect: incongruentCorrectRef.current,
       totalCorrect,
-      congruentAccuracy: calculateAccuracy(congruentCorrect, congruentTotal),
-      incongruentAccuracy: calculateAccuracy(incongruentCorrect, incongruentTotal),
+      congruentAccuracy: calculateAccuracy(congruentCorrectRef.current, congruentTotalRef.current),
+      incongruentAccuracy: calculateAccuracy(incongruentCorrectRef.current, incongruentTotalRef.current),
       overallAccuracy: calculateAccuracy(totalCorrect, totalTrials),
-      averageReactionTime: calculateAverageReactionTime(reactionTimes),
-      congruentAvgRT: calculateAverageReactionTime(congruentRTimes),
-      incongruentAvgRT: calculateAverageReactionTime(incongruentRTimes),
+      averageReactionTime: calculateAverageReactionTime(reactionTimesRef.current),
+      congruentAvgRT: calculateAverageReactionTime(congruentRTimesRef.current),
+      incongruentAvgRT: calculateAverageReactionTime(incongruentRTimesRef.current),
       congruencyEffect: congruencyEffect.toFixed(2),
-      reactionTimes
+      reactionTimes: reactionTimesRef.current
     };
 
     logResults('Flanker Task', results);
