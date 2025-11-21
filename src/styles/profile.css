@@ -2,7 +2,7 @@
 
 .profile-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
   padding: 40px 20px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -94,8 +94,8 @@
 
 .form-input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #00d4ff;
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
 }
 
 .checkbox-group {
@@ -139,7 +139,7 @@
   font-family: 'Courier New', monospace;
   font-size: 16px;
   font-weight: 600;
-  color: #667eea;
+  color: #00d4ff;
   padding: 10px;
   background: white;
   border-radius: 4px;
@@ -149,15 +149,15 @@
 
 .btn-secondary {
   background: white;
-  color: #667eea;
-  border: 1px solid #667eea;
+  color: #00d4ff;
+  border: 1px solid #00d4ff;
   padding: 10px 20px;
   white-space: nowrap;
 }
 
 .btn-secondary:hover {
-  background: #667eea;
-  color: white;
+  background: rgba(0, 212, 255, 0.1);
+  color: #00d4ff;
 }
 
 .error-message {

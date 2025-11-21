@@ -176,6 +176,7 @@ const TesterProfile = () => {
                 onChange={handleChange}
                 className="form-input"
               >
+                <option value="neurotypical">Neurotypical (No ADHD)</option>
                 <option value="control">Control (no diagnosis)</option>
                 <option value="suspected">Suspected ADHD</option>
                 <option value="diagnosed">Diagnosed ADHD</option>

@@ -18,7 +18,7 @@ const Dashboard = () => {
   useEffect(() => {
     // Redirect if not authenticated
     if (!currentUser) {
-      navigate('/');
+      navigate('/login');
       return;
     }
 
@@ -31,7 +31,7 @@ const Dashboard = () => {
   const handleLogout = async () => {
     if (window.confirm('Are you sure you want to log out?')) {
       await logout();
-      navigate('/');
+      navigate('/login');
     }
   };
 
@@ -108,9 +108,14 @@ const Dashboard = () => {
             <h1>🧠 ADHD Assessment Suite</h1>
             <p>Comprehensive Cognitive Assessment Platform</p>
           </div>
-          <button onClick={handleLogout} className="btn btn-secondary">
-            Log Out
-          </button>
+          <div className="header-actions">
+            <button onClick={() => navigate('/')} className="btn btn-outline-small">
+              ← Home
+            </button>
+            <button onClick={handleLogout} className="btn btn-secondary">
+              Log Out
+            </button>
+          </div>
         </div>
       </header>
 

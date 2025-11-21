@@ -2,18 +2,20 @@
 
 .dashboard-container {
   min-height: 100vh;
-  background: linear-gradient(180deg, #f8f9fa 0%, #f0f0f5 100%);
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   display: flex;
   flex-direction: column;
 }
 
 .dashboard-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: rgba(10, 10, 10, 0.7);
+  backdrop-filter: blur(10px);
   color: white;
   padding: 30px 20px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
   flex-shrink: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .header-content {
@@ -41,6 +43,12 @@
   opacity: 0.9;
 }
 
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 .dashboard-content {
   flex: 1;
   max-width: 1200px;
@@ -61,19 +69,19 @@
 .welcome-text h2 {
   font-size: 24px;
   margin: 0 0 5px 0;
-  color: #333;
+  color: #fff;
 }
 
 .welcome-text p {
   font-size: 14px;
-  color: #666;
+  color: #d0d0d0;
   margin: 0;
 }
 
 .btn-outline-small {
-  background: white;
-  color: #667eea;
-  border: 1px solid #667eea;
+  background: transparent;
+  color: #00d4ff;
+  border: 1px solid #00d4ff;
   padding: 10px 20px;
   font-size: 14px;
   font-weight: 600;
@@ -84,8 +92,8 @@
 }
 
 .btn-outline-small:hover {
-  background: #667eea;
-  color: white;
+  background: rgba(0, 212, 255, 0.1);
+  color: #00d4ff;
   transform: translateY(-2px);
 }
 
@@ -95,10 +103,12 @@
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 15px;
   margin-bottom: 30px;
-  background: white;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .info-item {
@@ -118,7 +128,7 @@
 .info-item .value {
   font-size: 15px;
   font-weight: 600;
-  color: #333;
+  color: #fff;
 }
 
 .info-item .value.capitalize {
@@ -151,9 +161,11 @@
 
 /* Tabs Container */
 .tabs-container {
-  background: white;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   flex: 1;
   display: flex;
@@ -162,8 +174,8 @@
 
 .tabs {
   display: flex;
-  border-bottom: 2px solid #eee;
-  background: #fafafa;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
   padding: 0;
   flex-shrink: 0;
 }
@@ -175,7 +187,7 @@
   border: none;
   font-size: 14px;
   font-weight: 600;
-  color: #999;
+  color: #888;
   cursor: pointer;
   transition: all 0.3s;
   border-bottom: 3px solid transparent;
@@ -184,14 +196,14 @@
 }
 
 .tab:hover {
-  color: #667eea;
-  background: white;
+  color: #00d4ff;
+  background: rgba(0, 212, 255, 0.05);
 }
 
 .tab.active {
-  color: #667eea;
-  border-bottom-color: #667eea;
-  background: white;
+  color: #00d4ff;
+  border-bottom-color: #00d4ff;
+  background: rgba(0, 212, 255, 0.1);
 }
 
 /* Tab Content */
@@ -205,18 +217,18 @@
 /* Tasks Header */
 .tasks-header {
   padding: 30px 30px 20px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .tasks-header h3 {
   font-size: 18px;
   margin: 0 0 8px 0;
-  color: #333;
+  color: #fff;
 }
 
 .tasks-header p {
   font-size: 13px;
-  color: #666;
+  color: #d0d0d0;
   margin: 0;
 }
 
@@ -230,13 +242,14 @@
 }
 
 .task-card {
-  background: white;
-  border: 2px solid #eee;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 20px;
   text-align: center;
   transition: all 0.3s;
-  border-left: 4px solid var(--task-color, #667eea);
+  border-left: 4px solid var(--task-color, #00d4ff);
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -282,10 +295,10 @@
 
 .task-duration {
   font-size: 12px;
-  background: #f5f5f5;
+  background: rgba(0, 212, 255, 0.2);
   padding: 5px 10px;
   border-radius: 20px;
-  color: #666;
+  color: #00d4ff;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -293,13 +306,13 @@
 .task-card h3 {
   font-size: 16px;
   margin: 0;
-  color: #333;
+  color: #fff;
   font-weight: 700;
 }
 
 .task-description {
   font-size: 12px;
-  color: #666;
+  color: #d0d0d0;
   margin: 0;
   line-height: 1.5;
   flex: 1;
@@ -312,9 +325,9 @@
 }
 
 .task-info-btn {
-  background: white;
-  color: #667eea;
-  border: 1px solid #ddd;
+  background: transparent;
+  color: #00d4ff;
+  border: 1px solid rgba(0, 212, 255, 0.4);
   padding: 8px 12px;
   font-size: 12px;
   font-weight: 600;
@@ -325,9 +338,9 @@
 }
 
 .task-info-btn:hover {
-  background: #f8f9ff;
-  border-color: #667eea;
-  color: #667eea;
+  background: rgba(0, 212, 255, 0.1);
+  border-color: #00d4ff;
+  color: #00d4ff;
 }
 
 .task-btn {
@@ -346,14 +359,14 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #00d4ff, #7b2ff7);
   color: white;
   width: 100%;
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
 }
 
 .btn-primary:active {
@@ -361,14 +374,14 @@
 }
 
 .btn-secondary {
-  background: white;
-  color: #667eea;
-  border: 1px solid #667eea;
+  background: transparent;
+  color: #00d4ff;
+  border: 1px solid #00d4ff;
 }
 
 .btn-secondary:hover {
-  background: #667eea;
-  color: white;
+  background: rgba(0, 212, 255, 0.1);
+  color: #00d4ff;
 }
 
 /* Empty State */
@@ -392,23 +405,23 @@
 .empty-state h3 {
   font-size: 20px;
   margin: 0 0 10px 0;
-  color: #666;
+  color: #d0d0d0;
 }
 
 .empty-state p {
   font-size: 14px;
   margin: 0;
-  color: #999;
+  color: #888;
 }
 
 /* Dashboard Footer */
 .dashboard-footer {
   text-align: center;
   padding: 20px;
-  color: #999;
+  color: #888;
   font-size: 12px;
-  border-top: 1px solid #eee;
-  background: white;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
   margin-top: 20px;
   flex-shrink: 0;
 }

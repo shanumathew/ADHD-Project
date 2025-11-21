@@ -10,6 +10,11 @@ import GoNoGoTask from './components/GoNoGoTask';
 import NBackTask from './components/NBackTask';
 import FlankerTask from './components/FlankerTask';
 import TrailMakingTask from './components/TrailMakingTask';
+import LandingPage from './components/LandingPage';
+import FeaturesPage from './components/FeaturesPage';
+import TasksPage from './components/TasksPage';
+import WhyUsPage from './components/WhyUsPage';
+import BenefitsPage from './components/BenefitsPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -20,7 +25,7 @@ const ProtectedRoute = ({ children }) => {
   }
 
   if (!currentUser) {
-    return <Navigate to="/" />;
+    return <Navigate to="/login" />;
   }
 
   return children;
@@ -39,7 +44,16 @@ const TaskWrapper = ({ children }) => {
 function AppContent() {
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/features" element={<FeaturesPage />} />
+      <Route path="/tasks" element={<TasksPage />} />
+      <Route path="/why-us" element={<WhyUsPage />} />
+      <Route path="/benefits" element={<BenefitsPage />} />
+      
+      <Route
+        path="/login"
+        element={<Login />}
+      />
       
       <Route
         path="/profile"

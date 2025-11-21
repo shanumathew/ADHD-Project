@@ -83,6 +83,7 @@ const Login = () => {
 
   return (
     <div className="auth-container">
+      <a href="/" className="back-to-home">← Back to Home</a>
       <div className="auth-card">
         <div className="auth-header">
           <h1>ADHD Assessment Suite</h1>
