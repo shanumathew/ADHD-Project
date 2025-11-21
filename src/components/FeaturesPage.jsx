@@ -155,242 +155,101 @@ const FeaturesPage = () => {
 
       <section id="features" className="features-section" style={{ paddingTop: '8rem', background: 'linear-gradient(180deg, #000 0%, #0a0a0a 100%)' }}>
         <div className="section-header" style={{ marginBottom: '4rem' }}>
-          <h2 className="section-title" style={{ fontSize: '3.5rem', marginBottom: '1.5rem' }}>
+          <h2 className="section-title">
             What Makes MC Biomarker Different
           </h2>
-          <p className="section-subtitle" style={{ fontSize: '1.4rem', maxWidth: '800px', margin: '0 auto', lineHeight: '1.8' }}>
+          <p className="section-subtitle">
             Explore the advantages that could transform ADHD diagnosis for your practice
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '3rem', padding: '0 2rem', marginBottom: '6rem', alignItems: 'stretch' }}>
+        <div className="features-grid">
           {/* Superior Accuracy */}
-          <div style={{ 
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)', 
-            padding: '3rem 2rem', 
-            borderRadius: '24px', 
-            border: '1px solid rgba(255,255,255,0.1)',
-            position: 'relative',
-            overflow: 'hidden',
-            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-            cursor: 'pointer',
-            display: 'flex',
-            flexDirection: 'column'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-8px)';
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)';
-            e.currentTarget.style.boxShadow = '0 20px 60px rgba(255,255,255,0.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
-            e.currentTarget.style.boxShadow = 'none';
-          }}>
-            <div style={{ height: '200px', marginBottom: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="feature-card-wrapper">
+            <div className="feature-icon-container">
               <Icon3D type="trophy" />
             </div>
-            <h3 style={{ fontSize: '1.8rem', color: '#fff', marginBottom: '1rem', fontWeight: '700' }}>
+            <h3 className="feature-card-title">
               High Diagnostic Accuracy
             </h3>
-            <p style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.8)', lineHeight: '1.7', marginBottom: '1.5rem', minHeight: '80px' }}>
+            <p className="feature-card-description">
               <strong style={{ color: '#fff', fontSize: '1.3rem' }}>91% AUC</strong> — achieving superior performance in clinical validation studies
             </p>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', marginTop: 'auto' }}>
+            <div className="feature-comparison">
               <span style={{ color: 'rgba(255,255,255,0.6)' }}>vs. Traditional Methods</span>
               <span style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 'bold' }}>+23%</span>
             </div>
           </div>
 
           {/* Cost Effective */}
-          <div style={{ 
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)', 
-            padding: '3rem 2rem', 
-            borderRadius: '24px', 
-            border: '1px solid rgba(255,255,255,0.1)',
-            position: 'relative',
-            overflow: 'hidden',
-            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-            cursor: 'pointer',
-            display: 'flex',
-            flexDirection: 'column'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-8px)';
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)';
-            e.currentTarget.style.boxShadow = '0 20px 60px rgba(255,255,255,0.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
-            e.currentTarget.style.boxShadow = 'none';
-          }}>
-            <div style={{ height: '200px', marginBottom: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="feature-card-wrapper">
+            <div className="feature-icon-container">
               <Icon3D type="dollar" />
             </div>
-            <h3 style={{ fontSize: '1.8rem', color: '#fff', marginBottom: '1rem', fontWeight: '700' }}>
+            <h3 className="feature-card-title">
               Cost-Effective Solution
             </h3>
-            <p style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.8)', lineHeight: '1.7', marginBottom: '1.5rem', minHeight: '80px' }}>
+            <p className="feature-card-description">
               <strong style={{ color: '#fff', fontSize: '1.3rem' }}>$20 per test</strong> — significantly more affordable than traditional diagnostic methods
             </p>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', marginTop: 'auto' }}>
+            <div className="feature-comparison">
               <span style={{ color: 'rgba(255,255,255,0.6)' }}>vs. EEG/fMRI</span>
               <span style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 'bold' }}>150x cheaper</span>
             </div>
           </div>
 
           {/* Fast Results */}
-          <div style={{ 
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)', 
-            padding: '3rem 2rem', 
-            borderRadius: '24px', 
-            border: '1px solid rgba(255,255,255,0.1)',
-            position: 'relative',
-            overflow: 'hidden',
-            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-            cursor: 'pointer',
-            display: 'flex',
-            flexDirection: 'column'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-8px)';
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)';
-            e.currentTarget.style.boxShadow = '0 20px 60px rgba(255,255,255,0.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
-            e.currentTarget.style.boxShadow = 'none';
-          }}>
-            <div style={{ height: '200px', marginBottom: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="feature-card-wrapper">
+            <div className="feature-icon-container">
               <Icon3D type="lightning" />
             </div>
-            <h3 style={{ fontSize: '1.8rem', color: '#fff', marginBottom: '1rem', fontWeight: '700' }}>
+            <h3 className="feature-card-title">
               Quick Assessment
             </h3>
-            <p style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.8)', lineHeight: '1.7', marginBottom: '1.5rem', minHeight: '80px' }}>
+            <p className="feature-card-description">
               <strong style={{ color: '#fff', fontSize: '1.3rem' }}>15 minutes</strong> — streamlined testing process with rapid results
             </p>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', marginTop: 'auto' }}>
+            <div className="feature-comparison">
               <span style={{ color: 'rgba(255,255,255,0.6)' }}>vs. Neuroimaging</span>
               <span style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 'bold' }}>6x faster</span>
             </div>
           </div>
 
           {/* Highly Accessible */}
-          <div style={{ 
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)', 
-            padding: '3rem 2rem', 
-            borderRadius: '24px', 
-            border: '1px solid rgba(255,255,255,0.1)',
-            position: 'relative',
-            overflow: 'hidden',
-            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-            cursor: 'pointer',
-            display: 'flex',
-            flexDirection: 'column'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-8px)';
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)';
-            e.currentTarget.style.boxShadow = '0 20px 60px rgba(255,255,255,0.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
-            e.currentTarget.style.boxShadow = 'none';
-          }}>
-            <div style={{ height: '200px', marginBottom: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="feature-card-wrapper">
+            <div className="feature-icon-container">
               <Icon3D type="globe" />
             </div>
-            <h3 style={{ fontSize: '1.8rem', color: '#fff', marginBottom: '1rem', fontWeight: '700' }}>
+            <h3 className="feature-card-title">
               Broad Accessibility
             </h3>
-            <p style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.8)', lineHeight: '1.7', marginBottom: '1.5rem', minHeight: '80px' }}>
+            <p className="feature-card-description">
               <strong style={{ color: '#fff', fontSize: '1.3rem' }}>Device-agnostic</strong> — works on standard computers without specialized equipment
             </p>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', marginTop: 'auto' }}>
+            <div className="feature-comparison">
               <span style={{ color: 'rgba(255,255,255,0.6)' }}>Geographic Reach</span>
               <span style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 'bold' }}>Unlimited</span>
             </div>
           </div>
 
           {/* Zero Bias */}
-          <div style={{ 
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)', 
-            padding: '3rem 2rem', 
-            borderRadius: '24px', 
-            border: '1px solid rgba(255,255,255,0.1)',
-            position: 'relative',
-            overflow: 'hidden',
-            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-            cursor: 'pointer',
-            display: 'flex',
-            flexDirection: 'column'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-8px)';
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)';
-            e.currentTarget.style.boxShadow = '0 20px 60px rgba(255,255,255,0.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
-            e.currentTarget.style.boxShadow = 'none';
-          }}>
-            <div style={{ height: '200px', marginBottom: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="feature-card-wrapper">
+            <div className="feature-icon-container">
               <Icon3D type="shield" />
             </div>
-            <h3 style={{ fontSize: '1.8rem', color: '#fff', marginBottom: '1rem', fontWeight: '700' }}>
+            <h3 className="feature-card-title">
               Objective Measurement
             </h3>
-            <p style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.8)', lineHeight: '1.7', marginBottom: '1.5rem', minHeight: '80px' }}>
+            <p className="feature-card-description">
               <strong style={{ color: '#fff', fontSize: '1.3rem' }}>Cognitive biomarker</strong> — designed to minimize demographic bias in assessment
             </p>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', marginTop: 'auto' }}>
+            <div className="feature-comparison">
               <span style={{ color: 'rgba(255,255,255,0.6)' }}>Demographic Variance</span>
               <span style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 'bold' }}>0%</span>
             </div>
           </div>
 
-          {/* Patent Protected */}
-          <div style={{ 
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)', 
-            padding: '3rem 2rem', 
-            borderRadius: '24px', 
-            border: '1px solid rgba(255,255,255,0.1)',
-            position: 'relative',
-            overflow: 'hidden',
-            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-            cursor: 'pointer',
-            display: 'flex',
-            flexDirection: 'column'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-8px)';
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)';
-            e.currentTarget.style.boxShadow = '0 20px 60px rgba(255,255,255,0.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
-            e.currentTarget.style.boxShadow = 'none';
-          }}>
-            <div style={{ height: '200px', marginBottom: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Icon3D type="patent" />
-            </div>
-            <h3 style={{ fontSize: '1.8rem', color: '#fff', marginBottom: '1rem', fontWeight: '700' }}>
-              Patent-Protected Innovation
-            </h3>
-            <p style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.8)', lineHeight: '1.7', marginBottom: '1.5rem', minHeight: '80px' }}>
-              <strong style={{ color: '#fff', fontSize: '1.3rem' }}>Cross-task consistency</strong> — first-ever biomarker with full IP protection
-            </p>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', marginTop: 'auto' }}>
-              <span style={{ color: 'rgba(255,255,255,0.6)' }}>Innovation Status</span>
-              <span style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 'bold' }}>Protected</span>
-            </div>
-          </div>
+
         </div>
 
         {/* Competitive Advantage Section */}
