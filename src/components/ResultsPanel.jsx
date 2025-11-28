@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { jsPDF } from 'jspdf';
 import '../styles/results.css';
+import '../styles/loading.css';
 
 const ResultsPanel = () => {
   const { currentUser } = useAuth();
@@ -18,10 +19,10 @@ const ResultsPanel = () => {
       const auth = fb.auth;
       const uid = auth?.currentUser?.uid || currentUser?.uid;
 
-      console.log('🔍 Fetching results for user:', uid);
+      console.log('Fetching results for user:', uid);
 
       if (!uid) {
-        console.log('⚠️ No user ID found');
+        console.log('No user ID found');
         setResults([]);
         setLoading(false);
         return;
@@ -31,20 +32,20 @@ const ResultsPanel = () => {
       const snap = await fs.getDocs(q);
       const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       
-      console.log('✅ Fetched results from Firestore:', docs.length, 'documents');
+      console.log('Fetched results from Firestore:', docs.length, 'documents');
       console.log('Results:', docs);
       
       setResults(docs);
     } catch (err) {
-      console.error('❌ Error fetching from Firestore:', err);
+      console.error('Error fetching from Firestore:', err);
       console.log('Falling back to localStorage...');
       
       try {
         const local = JSON.parse(localStorage.getItem('adhd_assessment_results') || '[]');
-        console.log('✅ Found in localStorage:', local.length, 'results');
+        console.log('Found in localStorage:', local.length, 'results');
         setResults(local.reverse());
       } catch (e) {
-        console.error('❌ Error with localStorage fallback:', e);
+        console.error('Error with localStorage fallback:', e);
         setResults([]);
       }
     } finally {
@@ -59,7 +60,7 @@ const ResultsPanel = () => {
   // Listen for storage changes (other tasks completing)
   useEffect(() => {
     const handleStorageChange = () => {
-      console.log('📢 Storage changed, refreshing results...');
+      console.log('Storage changed, refreshing results...');
       setRefreshTrigger(prev => prev + 1);
     };
 
@@ -167,16 +168,19 @@ const ResultsPanel = () => {
       <div className="results-header">
         <h3>Your Test Results</h3>
         <div className="results-actions">
-          <button className="btn btn-outline-small" onClick={() => setRefreshTrigger(prev => prev + 1)} style={{ marginRight: 8 }} title="Refresh results">🔄 Refresh</button>
-          <button className="btn btn-primary" onClick={downloadPDF} style={{ marginRight: 8 }}>📥 Download PDF</button>
+          <button className="btn btn-outline-small" onClick={() => setRefreshTrigger(prev => prev + 1)} style={{ marginRight: 8 }} title="Refresh results">Refresh</button>
+          <button className="btn btn-primary" onClick={downloadPDF} style={{ marginRight: 8 }}>Download PDF</button>
           {results.length > 0 && (
-            <button className="btn btn-danger" onClick={deleteAllResults}>🗑️ Clear All</button>
+            <button className="btn btn-danger" onClick={deleteAllResults}>Clear All</button>
           )}
         </div>
       </div>
 
       {loading ? (
-        <div className="empty-state">Loading results...</div>
+        <div className="results-loading">
+          <div className="mini-loader"></div>
+          <span className="loading-label">Loading your results</span>
+        </div>
       ) : results.length === 0 ? (
         <div className="empty-state">No results yet. Complete a task to see results here.</div>
       ) : (

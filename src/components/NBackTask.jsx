@@ -1,43 +1,39 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { logResults, calculateAccuracy, calculateAverageReactionTime, formatTime, generateRandomLetters } from '../utils/taskUtils';
+import { logResults, calculateAverageReactionTime, formatTime } from '../utils/taskUtils';
 
 /**
  * N-Back Task
  * 
- * Present a sequence of letters/numbers one by one.
+ * Present a sequence of letters one by one.
  * User indicates if current item matches the one n steps back.
- * Tracks accuracy, correct matches, and reaction time.
  */
 
-const NBackTask = () => {
+const NBackTask = ({ onTaskStart, onTaskEnd }) => {
   const [taskStarted, setTaskStarted] = useState(false);
   const [taskFinished, setTaskFinished] = useState(false);
-  const [nBackLevel, setNBackLevel] = useState(2); // 1-back or 2-back
+  const [nBackLevel, setNBackLevel] = useState(2);
   const [currentStimulus, setCurrentStimulus] = useState('');
   const [stimulusIndex, setStimulusIndex] = useState(0);
   const [stimulusSequence, setStimulusSequence] = useState([]);
   
-  // Results tracking
   const [hits, setHits] = useState(0);
   const [misses, setMisses] = useState(0);
   const [falseAlarms, setFalseAlarms] = useState(0);
   const [correctRejections, setCorrectRejections] = useState(0);
   const [reactionTimes, setReactionTimes] = useState([]);
   
-  // Refs for accurate result tracking (to avoid stale closures)
   const hitsRef = useRef(0);
   const missesRef = useRef(0);
   const falseAlarmsRef = useRef(0);
   const correctRejectionsRef = useRef(0);
   const reactionTimesRef = useRef([]);
   
-  // State variables
   const stimulusStartTimeRef = useRef(null);
   const stimulusTimeoutRef = useRef(null);
   const taskIntervalRef = useRef(null);
   const totalStimuliRef = useRef(25);
   const respondedRef = useRef(false);
-  const currentCountRef = useRef(0); // Track actual count for progression
+  const currentCountRef = useRef(0);
   
   const generateSequence = () => {
     const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -65,15 +61,15 @@ const NBackTask = () => {
     setReactionTimes([]);
     setStimulusIndex(0);
     
-    // Initialize refs
     hitsRef.current = 0;
     missesRef.current = 0;
     falseAlarmsRef.current = 0;
     correctRejectionsRef.current = 0;
     reactionTimesRef.current = [];
-    
     currentCountRef.current = 0;
     respondedRef.current = false;
+    
+    if (onTaskStart) onTaskStart();
     presentNextStimulus(sequence, 0);
   };
 
@@ -91,39 +87,28 @@ const NBackTask = () => {
     currentCountRef.current += 1;
   };
 
-  // Auto-advance when stimulus is visible and task is running
   useEffect(() => {
-    if (!taskStarted || taskFinished || !currentStimulus) {
-      return;
-    }
+    if (!taskStarted || taskFinished || !currentStimulus) return;
 
-    // Clear any pending timeouts
     if (stimulusTimeoutRef.current) clearTimeout(stimulusTimeoutRef.current);
     if (taskIntervalRef.current) clearTimeout(taskIntervalRef.current);
 
-    // Check if there should be a match
     const shouldMatch = stimulusIndex >= nBackLevel && stimulusSequence[stimulusIndex] === stimulusSequence[stimulusIndex - nBackLevel];
-
     let timerFired = false;
 
-    // Set timeout to clear stimulus after 2.5 seconds
     stimulusTimeoutRef.current = setTimeout(() => {
       timerFired = true;
       if (!respondedRef.current) {
         if (shouldMatch) {
-          // User didn't respond but there was a match = miss
           setMisses(prev => prev + 1);
         } else {
-          // User didn't respond and no match = correct rejection
           setCorrectRejections(prev => prev + 1);
         }
       }
-      
       setCurrentStimulus('');
     }, 2500);
 
     return () => {
-      // If timer didn't fire and user didn't respond, apply appropriate scoring
       if (!timerFired && !respondedRef.current) {
         if (shouldMatch) {
           setMisses(prev => prev + 1);
@@ -136,11 +121,8 @@ const NBackTask = () => {
     };
   }, [taskStarted, taskFinished, currentStimulus, stimulusIndex, nBackLevel, stimulusSequence]);
 
-  // Auto-present next stimulus after ISI when stimulus is cleared
   useEffect(() => {
-    if (!taskStarted || taskFinished || currentStimulus !== '') {
-      return;
-    }
+    if (!taskStarted || taskFinished || currentStimulus !== '') return;
 
     taskIntervalRef.current = setTimeout(() => {
       presentNextStimulus(stimulusSequence, stimulusIndex + 1);
@@ -160,17 +142,14 @@ const NBackTask = () => {
     clearTimeout(stimulusTimeoutRef.current);
     clearTimeout(taskIntervalRef.current);
 
-    const stimulus = stimulusSequence[stimulusIndex];
-    const shouldMatch = stimulusIndex >= nBackLevel && stimulus === stimulusSequence[stimulusIndex - nBackLevel];
+    const shouldMatch = stimulusIndex >= nBackLevel && stimulusSequence[stimulusIndex] === stimulusSequence[stimulusIndex - nBackLevel];
 
     if (shouldMatch) {
-      // Correct response to a match - track RT only for hits
       hitsRef.current += 1;
       setHits(prev => prev + 1);
       reactionTimesRef.current.push(reactionTime);
       setReactionTimes(prev => [...prev, reactionTime]);
     } else {
-      // Wrong response (no match but user said there was)
       falseAlarmsRef.current += 1;
       setFalseAlarms(prev => prev + 1);
     }
@@ -188,33 +167,20 @@ const NBackTask = () => {
     clearTimeout(stimulusTimeoutRef.current);
     clearTimeout(taskIntervalRef.current);
 
-    const stimulus = stimulusSequence[stimulusIndex];
-    const shouldMatch = stimulusIndex >= nBackLevel && stimulus === stimulusSequence[stimulusIndex - nBackLevel];
+    const shouldMatch = stimulusIndex >= nBackLevel && stimulusSequence[stimulusIndex] === stimulusSequence[stimulusIndex - nBackLevel];
 
     if (!shouldMatch) {
-      // Correct response to non-match - track RT only for correct rejections
       correctRejectionsRef.current += 1;
       setCorrectRejections(prev => prev + 1);
       reactionTimesRef.current.push(reactionTime);
       setReactionTimes(prev => [...prev, reactionTime]);
     } else {
-      // Wrong response (there was a match but user said no)
       missesRef.current += 1;
       setMisses(prev => prev + 1);
     }
 
     setCurrentStimulus('');
     taskIntervalRef.current = setTimeout(() => presentNextStimulus(stimulusSequence, stimulusIndex + 1), 500);
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === '1' || e.key === 'ArrowUp') {
-      e.preventDefault();
-      handleMatch();
-    } else if (e.key === '2' || e.key === 'ArrowDown') {
-      e.preventDefault();
-      handleNoMatch();
-    }
   };
 
   useEffect(() => {
@@ -231,9 +197,7 @@ const NBackTask = () => {
     };
 
     window.addEventListener('keydown', handleKeyPressCallback);
-    return () => {
-      window.removeEventListener('keydown', handleKeyPressCallback);
-    };
+    return () => window.removeEventListener('keydown', handleKeyPressCallback);
   }, [taskStarted, taskFinished, currentStimulus]);
 
   const finishTask = () => {
@@ -242,31 +206,28 @@ const NBackTask = () => {
     setCurrentStimulus('');
     clearTimeout(stimulusTimeoutRef.current);
     clearTimeout(taskIntervalRef.current);
+    
+    if (onTaskEnd) onTaskEnd();
 
-    const totalTrials = totalStimuliRef.current;
     const totalMatches = stimulusSequence.filter((item, index) => 
       index >= nBackLevel && item === stimulusSequence[index - nBackLevel]
     ).length;
 
-    // Calculate accuracy as correct responses / total trials
-    // (Correct = hits + correct rejections)
     const accuracy = hitsRef.current + correctRejectionsRef.current + missesRef.current + falseAlarmsRef.current > 0 
       ? Math.round(((hitsRef.current + correctRejectionsRef.current) / (hitsRef.current + correctRejectionsRef.current + missesRef.current + falseAlarmsRef.current)) * 100)
       : 0;
 
-    const avgRT = calculateAverageReactionTime(reactionTimesRef.current);
-
     const results = {
       nBackLevel,
-      totalTrials,
+      totalTrials: totalStimuliRef.current,
       hits: hitsRef.current,
       misses: missesRef.current,
       falseAlarms: falseAlarmsRef.current,
       correctRejections: correctRejectionsRef.current,
       totalMatches,
       accuracy,
-      averageReactionTime: avgRT,
-      averageReactionTimeMs: avgRT,
+      averageReactionTime: calculateAverageReactionTime(reactionTimesRef.current),
+      averageReactionTimeMs: calculateAverageReactionTime(reactionTimesRef.current),
       reactionTimesMs: reactionTimesRef.current,
       sequence: stimulusSequence.join('')
     };
@@ -287,138 +248,173 @@ const NBackTask = () => {
     setReactionTimes([]);
     clearTimeout(stimulusTimeoutRef.current);
     clearTimeout(taskIntervalRef.current);
+    if (onTaskEnd) onTaskEnd();
   };
 
-  const totalTrials = totalStimuliRef.current;
   const totalMatches = stimulusSequence.filter((item, index) => 
     index >= nBackLevel && item === stimulusSequence[index - nBackLevel]
   ).length;
   const avgReactionTime = calculateAverageReactionTime(reactionTimes);
+  const progressPercent = (stimulusIndex / totalStimuliRef.current) * 100;
 
   return (
     <div className="task-container">
       <div className="task-header">
         <h2>N-Back Task</h2>
         <p className="task-description">
-          Letters will be presented one by one.
-          <br />
-          Press <strong>1 or ↑</strong> if the current letter <strong>MATCHES</strong> the one {nBackLevel} step{nBackLevel > 1 ? 's' : ''} back.
-          <br />
-          Press <strong>2 or ↓</strong> if it does <strong>NOT MATCH</strong>.
+          Letters will appear one by one. Press <span className="key-highlight">↑</span> or <span className="key-highlight">1</span> if the letter <strong>MATCHES</strong> the one {nBackLevel} step{nBackLevel > 1 ? 's' : ''} back.
+          Press <span className="key-highlight">↓</span> or <span className="key-highlight">2</span> if it does <strong>NOT</strong> match.
         </p>
       </div>
 
-      <div className="controls">
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', alignItems: 'center' }}>
-          <label>
-            N-Back Level:
-            <select
-              value={nBackLevel}
-              onChange={(e) => setNBackLevel(parseInt(e.target.value))}
-              disabled={taskStarted || taskFinished}
-              style={{
-                marginLeft: '10px',
-                padding: '8px 15px',
-                borderRadius: '5px',
-                border: '1px solid #ccc',
-                fontSize: '16px'
-              }}
-            >
-              <option value={1}>1-Back</option>
-              <option value={2}>2-Back</option>
-              <option value={3}>3-Back</option>
-            </select>
-          </label>
+      <div className="task-controls">
+        <div className="task-select-wrapper">
+          <span className="task-select-label">Level:</span>
+          <select
+            value={nBackLevel}
+            onChange={(e) => setNBackLevel(parseInt(e.target.value))}
+            disabled={taskStarted || taskFinished}
+            className="task-select"
+          >
+            <option value={1}>1-Back</option>
+            <option value={2}>2-Back</option>
+            <option value={3}>3-Back</option>
+          </select>
         </div>
         <button
-          className="btn btn-primary"
+          className="task-btn task-btn-primary"
           onClick={startTask}
           disabled={taskStarted}
         >
-          {taskStarted ? 'Task Running...' : 'Start Task'}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          {taskStarted ? 'Running...' : 'Start Task'}
         </button>
         <button
-          className="btn btn-secondary"
+          className="task-btn task-btn-secondary"
           onClick={resetTask}
           disabled={!taskFinished && !taskStarted}
         >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+          </svg>
           Reset
         </button>
       </div>
 
-      <div className="stimulus-area">
-        {currentStimulus || (taskFinished ? 'Task Complete' : 'Waiting...')}
+      <div className="progress-section">
+        <div className="progress-info">
+          <span className="progress-label">Progress</span>
+          <span className="progress-count">{stimulusIndex} / {totalStimuliRef.current}</span>
+        </div>
+        <div className="progress-bar">
+          <div className="progress-fill" style={{ width: `${progressPercent}%` }}></div>
+        </div>
       </div>
 
-      <div className="nback-options">
+      <div className={`stimulus-area ${taskStarted && currentStimulus ? 'active' : ''}`}>
+        {currentStimulus ? (
+          <span>{currentStimulus}</span>
+        ) : (
+          <span className={taskFinished ? 'stimulus-complete' : 'stimulus-waiting'}>
+            {taskFinished ? 'Task Complete!' : 'Press Start to begin...'}
+          </span>
+        )}
+      </div>
+
+      <div className="response-buttons">
         <button
-          className="nback-button nback-match"
+          className="response-btn match"
           onClick={handleMatch}
           disabled={!taskStarted || taskFinished || !currentStimulus}
         >
-          ↑ Match (1)
+          <span className="response-btn-icon">↑</span>
+          <span className="response-btn-text">Match (1)</span>
         </button>
         <button
-          className="nback-button nback-nomatch"
+          className="response-btn nomatch"
           onClick={handleNoMatch}
           disabled={!taskStarted || taskFinished || !currentStimulus}
         >
-          ↓ No Match (2)
+          <span className="response-btn-icon">↓</span>
+          <span className="response-btn-text">No Match (2)</span>
         </button>
       </div>
 
-      <div className="stats-display">
-        <div className="stat-card">
-          <div className="stat-label">Progress</div>
-          <div className="stat-value">{stimulusIndex}/{totalStimuliRef.current}</div>
+      <div className="keyboard-hints">
+        <div className="keyboard-hint">
+          <span className="keyboard-key">↑</span> or <span className="keyboard-key">1</span>
+          <span>Match</span>
         </div>
+        <div className="keyboard-hint">
+          <span className="keyboard-key">↓</span> or <span className="keyboard-key">2</span>
+          <span>No Match</span>
+        </div>
+      </div>
+
+      <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-label">Hits</div>
-          <div className="stat-value">{hits}</div>
+          <div className="stat-value success">{hits}</div>
         </div>
         <div className="stat-card">
           <div className="stat-label">Misses</div>
-          <div className="stat-value">{misses}</div>
+          <div className="stat-value error">{misses}</div>
         </div>
         <div className="stat-card">
           <div className="stat-label">False Alarms</div>
-          <div className="stat-value">{falseAlarms}</div>
+          <div className="stat-value error">{falseAlarms}</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label">Correct Rejections</div>
-          <div className="stat-value">{correctRejections}</div>
+          <div className="stat-label">Correct Rej.</div>
+          <div className="stat-value success">{correctRejections}</div>
         </div>
       </div>
 
       {taskFinished && (
         <div className="results-container">
-          <h3>Task Results ({nBackLevel}-Back)</h3>
-          <div className="result-item">
-            <strong>Total Trials:</strong> {totalStimuliRef.current}
+          <div className="results-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <h3>Task Results ({nBackLevel}-Back)</h3>
           </div>
-          <div className="result-item">
-            <strong>Hits (Correct Matches):</strong> {hits}
-          </div>
-          <div className="result-item">
-            <strong>Misses (Missed Matches):</strong> {misses}
-          </div>
-          <div className="result-item">
-            <strong>False Alarms (Wrong Matches):</strong> {falseAlarms}
-          </div>
-          <div className="result-item">
-            <strong>Correct Rejections (Correct Non-Matches):</strong> {correctRejections}
-          </div>
-          <div className="result-item">
-            <strong>Total Expected Matches:</strong> {totalMatches}
-          </div>
-          <div className="result-item">
-            <strong>Accuracy:</strong> {((hits + correctRejections + misses + falseAlarms > 0) ? Math.round(((hits + correctRejections) / (hits + correctRejections + misses + falseAlarms)) * 100) : 0)}%
-          </div>
-          <div className="result-item">
-            <strong>Average Reaction Time:</strong> {reactionTimes.length > 0 ? formatTime(parseFloat(avgReactionTime)) : 'N/A'}
-          </div>
-          <div className="result-item" style={{ marginTop: '10px', fontSize: '0.9em', color: '#666' }}>
-            <strong>Stimulus Sequence:</strong> {stimulusSequence.join(' ')}
+          <div className="results-body">
+            <div className="result-item">
+              <span className="result-label">Total Trials</span>
+              <span className="result-value">{totalStimuliRef.current}</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">Total Matches</span>
+              <span className="result-value">{totalMatches}</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">Hits</span>
+              <span className="result-value good">{hits}</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">Misses</span>
+              <span className="result-value bad">{misses}</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">False Alarms</span>
+              <span className="result-value bad">{falseAlarms}</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">Correct Rejections</span>
+              <span className="result-value good">{correctRejections}</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">Accuracy</span>
+              <span className="result-value">{((hits + correctRejections + misses + falseAlarms > 0) ? Math.round(((hits + correctRejections) / (hits + correctRejections + misses + falseAlarms)) * 100) : 0)}%</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">Avg Reaction Time</span>
+              <span className="result-value">{reactionTimes.length > 0 ? formatTime(parseFloat(avgReactionTime)) : 'N/A'}</span>
+            </div>
           </div>
         </div>
       )}

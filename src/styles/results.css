@@ -1,69 +1,116 @@
 .results-panel {
-  padding: 20px;
+  padding: 2rem;
 }
 
 .results-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.results-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
 }
 
 .results-actions {
   display: flex;
-  gap: 8px;
+  gap: 0.75rem;
   flex-wrap: wrap;
+}
+
+/* Results Section Buttons */
+.results-actions .btn {
+  padding: 0.7rem 1.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: none;
+}
+
+.results-actions .btn-outline-small {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.results-actions .btn-outline-small:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.results-actions .btn-primary {
+  background: #fff;
+  color: #000;
+}
+
+.results-actions .btn-primary:hover {
+  background: #fff;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
 }
 
 .results-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 1rem;
 }
 
 .result-card {
-  background: white;
-  border: 1px solid #eee;
-  padding: 12px;
-  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.25rem;
+  border-radius: 14px;
   position: relative;
+  transition: all 0.3s;
+}
+
+.result-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
 }
 
 .result-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 8px;
-  gap: 10px;
+  margin-bottom: 1rem;
+  gap: 1rem;
 }
 
 .result-header > div {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0.35rem;
 }
 
 .result-header strong {
-  font-size: 14px;
-  color: #333;
+  font-size: 1rem;
+  color: #fff;
+  font-weight: 600;
 }
 
 .result-time {
-  color: #888;
-  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.8rem;
 }
 
 .btn-delete-small {
-  background: #ff4757;
-  color: white;
-  border: none;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+  background: rgba(255, 71, 87, 0.2);
+  color: #ff6b7a;
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
   font-weight: bold;
-  transition: all 0.2s;
+  transition: all 0.3s;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -71,39 +118,75 @@
 }
 
 .btn-delete-small:hover {
-  background: #ff3838;
-  transform: scale(1.1);
+  background: rgba(255, 71, 87, 0.3);
+  border-color: rgba(255, 71, 87, 0.5);
+  transform: scale(1.05);
 }
 
 .btn-danger {
-  background: #ff4757;
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  font-size: 13px;
+  background: rgba(255, 71, 87, 0.2);
+  color: #ff6b7a;
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  padding: 0.75rem 1.25rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s;
 }
 
 .btn-danger:hover {
-  background: #ff3838;
-  transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(255, 71, 87, 0.3);
+  background: rgba(255, 71, 87, 0.3);
+  border-color: rgba(255, 71, 87, 0.5);
+  transform: translateY(-2px);
 }
 
 .result-body {
-  background: #f8f9ff;
-  padding: 10px;
-  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 1rem;
+  border-radius: 10px;
   overflow-x: auto;
-  font-size: 12px;
+  font-size: 0.8rem;
   margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: 'Monaco', 'Menlo', monospace;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .empty-state {
-  padding: 40px;
+  padding: 3rem;
   text-align: center;
-  color: #999;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.95rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .results-panel {
+    padding: 1.5rem;
+  }
+
+  .results-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .results-actions {
+    width: 100%;
+  }
+
+  .results-actions .btn {
+    flex: 1;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .results-panel {
+    padding: 1rem;
+  }
+
+  .result-card {
+    padding: 1rem;
+  }
 }

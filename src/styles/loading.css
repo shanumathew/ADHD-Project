@@ -1,0 +1,360 @@
+/* Loading Screen Styles */
+
+.loading-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+}
+
+.loading-screen.inline {
+  position: relative;
+  min-height: 200px;
+  background: transparent;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+/* Brain-inspired Loader */
+.brain-loader {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.neuron-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+}
+
+.ring-1 {
+  width: 100px;
+  height: 100px;
+  animation: rotate-ring 3s linear infinite;
+}
+
+.ring-2 {
+  width: 70px;
+  height: 70px;
+  animation: rotate-ring 2s linear infinite reverse;
+}
+
+.neuron {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 
+    0 0 20px rgba(255, 255, 255, 0.8),
+    0 0 40px rgba(102, 126, 234, 0.6),
+    0 0 60px rgba(102, 126, 234, 0.4);
+  animation: neuron-pulse 1.5s ease-in-out infinite;
+}
+
+.ring-1 .neuron:nth-child(1) { top: 0; left: 50%; transform: translateX(-50%); animation-delay: 0s; }
+.ring-1 .neuron:nth-child(2) { top: 50%; right: 0; transform: translateY(-50%); animation-delay: 0.375s; }
+.ring-1 .neuron:nth-child(3) { bottom: 0; left: 50%; transform: translateX(-50%); animation-delay: 0.75s; }
+.ring-1 .neuron:nth-child(4) { top: 50%; left: 0; transform: translateY(-50%); animation-delay: 1.125s; }
+
+.ring-2 .neuron:nth-child(1) { top: 0; left: 50%; transform: translateX(-50%); animation-delay: 0.1875s; }
+.ring-2 .neuron:nth-child(2) { top: 50%; right: 0; transform: translateY(-50%); animation-delay: 0.5625s; }
+.ring-2 .neuron:nth-child(3) { bottom: 0; left: 50%; transform: translateX(-50%); animation-delay: 0.9375s; }
+.ring-2 .neuron:nth-child(4) { top: 50%; left: 0; transform: translateY(-50%); animation-delay: 1.3125s; }
+
+.ring-2 .neuron {
+  width: 8px;
+  height: 8px;
+  background: rgba(102, 126, 234, 0.9);
+  box-shadow: 
+    0 0 15px rgba(102, 126, 234, 0.8),
+    0 0 30px rgba(102, 126, 234, 0.5);
+}
+
+.core-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+  background: radial-gradient(circle, #fff 0%, rgba(102, 126, 234, 0.8) 50%, transparent 70%);
+  border-radius: 50%;
+  animation: core-pulse 2s ease-in-out infinite;
+}
+
+@keyframes rotate-ring {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes neuron-pulse {
+  0%, 100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateX(-50%) scale(1.3);
+    opacity: 1;
+  }
+}
+
+.ring-1 .neuron:nth-child(2),
+.ring-1 .neuron:nth-child(4),
+.ring-2 .neuron:nth-child(2),
+.ring-2 .neuron:nth-child(4) {
+  animation-name: neuron-pulse-y;
+}
+
+@keyframes neuron-pulse-y {
+  0%, 100% {
+    transform: translateY(-50%) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-50%) scale(1.3);
+    opacity: 1;
+  }
+}
+
+@keyframes core-pulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0.4;
+  }
+}
+
+/* Loading Text */
+.loading-text {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.loading-message {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #fff;
+  letter-spacing: 0.05em;
+}
+
+.loading-dots {
+  display: flex;
+  gap: 0.15rem;
+}
+
+.dot {
+  font-size: 1.5rem;
+  color: #667eea;
+  animation: dot-bounce 1.4s ease-in-out infinite;
+}
+
+.dot:nth-child(1) { animation-delay: 0s; }
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dot-bounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-8px);
+    opacity: 1;
+  }
+}
+
+/* Connection Lines Animation (subtle background effect) */
+.loading-screen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(102, 126, 234, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(118, 75, 162, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.02) 0%, transparent 60%);
+  animation: background-shift 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes background-shift {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Inline variant adjustments */
+.loading-screen.inline::before {
+  display: none;
+}
+
+.loading-screen.inline .brain-loader {
+  width: 80px;
+  height: 80px;
+}
+
+.loading-screen.inline .ring-1 {
+  width: 70px;
+  height: 70px;
+}
+
+.loading-screen.inline .ring-2 {
+  width: 50px;
+  height: 50px;
+}
+
+.loading-screen.inline .neuron {
+  width: 8px;
+  height: 8px;
+}
+
+.loading-screen.inline .ring-2 .neuron {
+  width: 6px;
+  height: 6px;
+}
+
+.loading-screen.inline .core-pulse {
+  width: 20px;
+  height: 20px;
+}
+
+.loading-screen.inline .loading-message {
+  font-size: 1rem;
+}
+
+/* Small inline loader for buttons and cards */
+.loading-spinner-small {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.loading-spinner-small .spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Results panel loading */
+.results-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  gap: 1.5rem;
+}
+
+.results-loading .mini-loader {
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+
+.results-loading .mini-loader::before,
+.results-loading .mini-loader::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 3px solid transparent;
+}
+
+.results-loading .mini-loader::before {
+  width: 100%;
+  height: 100%;
+  border-top-color: #fff;
+  border-right-color: #fff;
+  animation: spin 1s linear infinite;
+}
+
+.results-loading .mini-loader::after {
+  width: 70%;
+  height: 70%;
+  border-bottom-color: #667eea;
+  border-left-color: #667eea;
+  animation: spin 0.8s linear infinite reverse;
+}
+
+.results-loading .loading-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .brain-loader {
+    width: 90px;
+    height: 90px;
+  }
+
+  .ring-1 {
+    width: 75px;
+    height: 75px;
+  }
+
+  .ring-2 {
+    width: 52px;
+    height: 52px;
+  }
+
+  .neuron {
+    width: 10px;
+    height: 10px;
+  }
+
+  .ring-2 .neuron {
+    width: 6px;
+    height: 6px;
+  }
+
+  .core-pulse {
+    width: 24px;
+    height: 24px;
+  }
+
+  .loading-message {
+    font-size: 1.1rem;
+  }
+}

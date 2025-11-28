@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import '../styles/profile.css';
+import '../styles/loading.css';
 
 const generateTesterId = () => {
   // Format: ADHD-YYYYMMDD-XXXXX (5 random alphanumeric)
@@ -213,7 +214,12 @@ const TesterProfile = () => {
             className="btn btn-primary btn-full"
             style={{ marginTop: '20px' }}
           >
-            {loading ? 'Saving Profile...' : userProfile?.profileComplete ? 'Save Changes' : 'Continue to Dashboard'}
+            {loading ? (
+              <span className="loading-spinner-small">
+                <span className="spinner"></span>
+                Saving
+              </span>
+            ) : userProfile?.profileComplete ? 'Save Changes' : 'Continue to Dashboard'}
           </button>
         </form>
       </div>

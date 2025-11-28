@@ -27,11 +27,11 @@ const TaskDetailsModal = ({ task, isOpen, onClose }) => {
       ],
       
       assesses: [
-        '✓ Sustained Attention: Your ability to stay focused over time',
-        '✓ Impulse Control: Avoiding premature or incorrect responses',
-        '✓ Vigilance: Detecting targets in a repetitive task',
-        '✓ Processing Speed: How quickly you identify patterns',
-        '✓ Working Memory: Remembering the target pattern'
+        'Sustained Attention: Your ability to stay focused over time',
+        'Impulse Control: Avoiding premature or incorrect responses',
+        'Vigilance: Detecting targets in a repetitive task',
+        'Processing Speed: How quickly you identify patterns',
+        'Working Memory: Remembering the target pattern'
       ],
       
       adhd: 'People with ADHD often show increased false alarms, slower reaction times, and difficulty maintaining consistency throughout the task.'
@@ -59,11 +59,11 @@ const TaskDetailsModal = ({ task, isOpen, onClose }) => {
       ],
       
       assesses: [
-        '✓ Response Inhibition: Stopping a prepared response',
-        '✓ Impulse Control: Resisting automatic urges to respond',
-        '✓ Attention: Maintaining focus on current stimulus',
-        '✓ Error Monitoring: Recognizing when you make mistakes',
-        '✓ Executive Control: Managing behavioral responses'
+        'Response Inhibition: Stopping a prepared response',
+        'Impulse Control: Resisting automatic urges to respond',
+        'Attention: Maintaining focus on current stimulus',
+        'Error Monitoring: Recognizing when you make mistakes',
+        'Executive Control: Managing behavioral responses'
       ],
       
       adhd: 'Individuals with ADHD typically show more commission errors (responding on No-Go trials) and higher impulsivity patterns.'
@@ -91,11 +91,11 @@ const TaskDetailsModal = ({ task, isOpen, onClose }) => {
       ],
       
       assesses: [
-        '✓ Working Memory: Holding information in mind temporarily',
-        '✓ Mental Updating: Updating representations as new info arrives',
-        '✓ Attention Shifting: Moving focus as task difficulty changes',
-        '✓ Processing Speed: How quickly you recognize matches',
-        '✓ Cognitive Load: Performance under increasing mental demands'
+        'Working Memory: Holding information in mind temporarily',
+        'Mental Updating: Updating representations as new info arrives',
+        'Attention Shifting: Moving focus as task difficulty changes',
+        'Processing Speed: How quickly you recognize matches',
+        'Cognitive Load: Performance under increasing mental demands'
       ],
       
       adhd: 'People with ADHD often show reduced accuracy on higher N levels and struggle more with working memory demands than controls.'
@@ -123,11 +123,11 @@ const TaskDetailsModal = ({ task, isOpen, onClose }) => {
       ],
       
       assesses: [
-        '✓ Selective Attention: Focusing on relevant information',
-        '✓ Cognitive Control: Suppressing attention to distractors',
-        '✓ Conflict Resolution: Resolving competing stimulus information',
-        '✓ Processing Speed: How fast you process target information',
-        '✓ Distraction Susceptibility: Measuring flanker interference effects'
+        'Selective Attention: Focusing on relevant information',
+        'Cognitive Control: Suppressing attention to distractors',
+        'Conflict Resolution: Resolving competing stimulus information',
+        'Processing Speed: How fast you process target information',
+        'Distraction Susceptibility: Measuring flanker interference effects'
       ],
       
       adhd: 'Individuals with ADHD typically show larger interference effects (bigger difference between congruent and incongruent trials) and slower processing overall.'
@@ -155,11 +155,11 @@ const TaskDetailsModal = ({ task, isOpen, onClose }) => {
       ],
       
       assesses: [
-        '✓ Visual Scanning: Finding target items quickly',
-        '✓ Processing Speed: How fast you complete the task',
-        '✓ Mental Flexibility: Switching between numbers and letters',
-        '✓ Task Switching: Speed cost of alternating between categories',
-        '✓ Executive Function: Planning and organizing your response strategy'
+        'Visual Scanning: Finding target items quickly',
+        'Processing Speed: How fast you complete the task',
+        'Mental Flexibility: Switching between numbers and letters',
+        'Task Switching: Speed cost of alternating between categories',
+        'Executive Function: Planning and organizing your response strategy'
       ],
       
       adhd: 'People with ADHD typically show slower completion times, especially on Part B, indicating slower processing speed and difficulty with task-switching.'
@@ -184,13 +184,23 @@ const TaskDetailsModal = ({ task, isOpen, onClose }) => {
         <div className="modal-body">
           {/* Overview */}
           <section className="modal-section">
-            <h3>📋 Overview</h3>
+            <h3>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+              </svg>
+              Overview
+            </h3>
             <p>{details.description}</p>
           </section>
 
           {/* How to Use */}
           <section className="modal-section">
-            <h3>🎮 How to Use This Task</h3>
+            <h3>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                <path d="M15 7.5V2H9v5.5l3 3 3-3zM7.5 9H2v6h5.5l3-3-3-3zM9 16.5V22h6v-5.5l-3-3-3 3zM16.5 9l-3 3 3 3H22V9h-5.5z"/>
+              </svg>
+              How to Use This Task
+            </h3>
             <ul className="instruction-list">
               {details.howToUse?.map((item, idx) => (
                 <li key={idx}>{item}</li>
@@ -200,7 +210,12 @@ const TaskDetailsModal = ({ task, isOpen, onClose }) => {
 
           {/* What to Expect */}
           <section className="modal-section">
-            <h3>⏱️ What to Expect</h3>
+            <h3>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+              </svg>
+              What to Expect
+            </h3>
             <ul className="info-list">
               {details.whatToExpect?.map((item, idx) => (
                 <li key={idx}>{item}</li>
@@ -210,7 +225,12 @@ const TaskDetailsModal = ({ task, isOpen, onClose }) => {
 
           {/* What It Assesses */}
           <section className="modal-section">
-            <h3>📊 What This Task Assesses</h3>
+            <h3>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+              </svg>
+              What This Task Assesses
+            </h3>
             <div className="assessment-list">
               {details.assesses?.map((item, idx) => (
                 <div key={idx} className="assessment-item">{item}</div>
@@ -220,13 +240,23 @@ const TaskDetailsModal = ({ task, isOpen, onClose }) => {
 
           {/* ADHD Context */}
           <section className="modal-section">
-            <h3>🧠 About ADHD & This Task</h3>
+            <h3>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+              </svg>
+              About ADHD & This Task
+            </h3>
             <p className="adhd-context">{details.adhd}</p>
           </section>
 
           {/* Important Notes */}
           <section className="modal-section">
-            <h3>⚠️ Important Notes</h3>
+            <h3>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+              </svg>
+              Important Notes
+            </h3>
             <ul className="notes-list">
               <li>Take your time reading these instructions</li>
               <li>There will be a practice round before the actual test</li>

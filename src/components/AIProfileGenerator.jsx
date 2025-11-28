@@ -6,6 +6,7 @@ import { localLLMClient } from '../utils/localLLMClient';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import '../styles/aiprofile.css';
+import '../styles/loading.css';
 
 const AIProfileGenerator = ({ onClose, isOpen }) => {
   const { currentUser } = useAuth();
@@ -505,7 +506,12 @@ const AIProfileGenerator = ({ onClose, isOpen }) => {
               onClick={fetchAllResults}
               disabled={loading}
             >
-              {loading ? 'Analyzing...' : 'Generate My Profile'}
+              {loading ? (
+                <span className="loading-spinner-small">
+                  <span className="spinner"></span>
+                  Analyzing
+                </span>
+              ) : 'Generate My Profile'}
             </button>
             
             <p className="info-text">

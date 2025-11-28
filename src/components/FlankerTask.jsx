@@ -4,18 +4,16 @@ import { logResults, calculateAccuracy, calculateAverageReactionTime, formatTime
 /**
  * Flanker Task
  * 
- * Show a central target (arrow or letter) with surrounding distractors.
+ * Show a central target (arrow) with surrounding distractors.
  * User must identify the direction of the central target.
- * Tracks accuracy and reaction time, including congruent/incongruent trials.
  */
 
-const FlankerTask = () => {
+const FlankerTask = ({ onTaskStart, onTaskEnd }) => {
   const [taskStarted, setTaskStarted] = useState(false);
   const [taskFinished, setTaskFinished] = useState(false);
-  const [currentTrial, setCurrentTrial] = useState(null); // { target, distractors, isCongruent }
+  const [currentTrial, setCurrentTrial] = useState(null);
   const [trialIndex, setTrialIndex] = useState(0);
   
-  // Results tracking
   const [congruentCorrect, setCongruentCorrect] = useState(0);
   const [congruentTotal, setCongruentTotal] = useState(0);
   const [incongruentCorrect, setIncongruentCorrect] = useState(0);
@@ -24,7 +22,6 @@ const FlankerTask = () => {
   const [congruentRTimes, setCongruentRTimes] = useState([]);
   const [incongruentRTimes, setIncongruentRTimes] = useState([]);
   
-  // Refs for accurate result tracking (to avoid stale closures)
   const congruentCorrectRef = useRef(0);
   const congruentTotalRef = useRef(0);
   const incongruentCorrectRef = useRef(0);
@@ -33,13 +30,12 @@ const FlankerTask = () => {
   const congruentRTimesRef = useRef([]);
   const incongruentRTimesRef = useRef([]);
   
-  // State variables
   const stimulusStartTimeRef = useRef(null);
   const stimulusTimeoutRef = useRef(null);
   const taskIntervalRef = useRef(null);
-  const totalTrialsRef = useRef(40); // 20 congruent + 20 incongruent
+  const totalTrialsRef = useRef(40);
   const respondedRef = useRef(false);
-  const currentCountRef = useRef(0); // Track actual count for progression
+  const currentCountRef = useRef(0);
   
   const generateTrial = (isCongruent) => {
     const directions = ['<', '>'];
@@ -48,10 +44,8 @@ const FlankerTask = () => {
     
     let distractors;
     if (isCongruent) {
-      // All distractors match target direction
       distractors = [target, target, target, target];
     } else {
-      // Distractors are opposite to target
       distractors = [
         directions[1 - targetIndex],
         directions[1 - targetIndex],
@@ -60,13 +54,7 @@ const FlankerTask = () => {
       ];
     }
     
-    // Shuffle distractors order (keep target in middle)
-    return {
-      target,
-      distractors,
-      isCongruent,
-      correctAnswer: target
-    };
+    return { target, distractors, isCongruent, correctAnswer: target };
   };
 
   const startTask = () => {
@@ -81,7 +69,6 @@ const FlankerTask = () => {
     setIncongruentRTimes([]);
     setTrialIndex(0);
     
-    // Initialize refs
     congruentCorrectRef.current = 0;
     congruentTotalRef.current = 0;
     incongruentCorrectRef.current = 0;
@@ -89,8 +76,9 @@ const FlankerTask = () => {
     reactionTimesRef.current = [];
     congruentRTimesRef.current = [];
     incongruentRTimesRef.current = [];
-    
     currentCountRef.current = 0;
+    
+    if (onTaskStart) onTaskStart();
     presentNextTrial(0);
   };
 
@@ -100,7 +88,6 @@ const FlankerTask = () => {
       return;
     }
 
-    // 50% congruent, 50% incongruent
     const isCongruent = index % 2 === 0;
     const trial = generateTrial(isCongruent);
     
@@ -117,17 +104,12 @@ const FlankerTask = () => {
     }
   };
 
-  // Auto-advance when trial is visible and task is running
   useEffect(() => {
-    if (!taskStarted || taskFinished || !currentTrial) {
-      return;
-    }
+    if (!taskStarted || taskFinished || !currentTrial) return;
 
-    // Clear any pending timeouts
     if (stimulusTimeoutRef.current) clearTimeout(stimulusTimeoutRef.current);
     if (taskIntervalRef.current) clearTimeout(taskIntervalRef.current);
 
-    // Set timeout to clear trial after 3 seconds
     stimulusTimeoutRef.current = setTimeout(() => {
       setCurrentTrial(null);
     }, 3000);
@@ -138,11 +120,8 @@ const FlankerTask = () => {
     };
   }, [taskStarted, taskFinished, currentTrial]);
 
-  // Auto-present next trial after ISI when trial is cleared
   useEffect(() => {
-    if (!taskStarted || taskFinished || currentTrial !== null) {
-      return;
-    }
+    if (!taskStarted || taskFinished || currentTrial !== null) return;
 
     taskIntervalRef.current = setTimeout(() => {
       presentNextTrial(trialIndex + 1);
@@ -192,16 +171,6 @@ const FlankerTask = () => {
     taskIntervalRef.current = setTimeout(() => presentNextTrial(trialIndex + 1), 500);
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      handleResponse('<');
-    } else if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      handleResponse('>');
-    }
-  };
-
   useEffect(() => {
     if (!taskStarted || taskFinished) return;
 
@@ -216,9 +185,7 @@ const FlankerTask = () => {
     };
 
     window.addEventListener('keydown', handleKeyPressCallback);
-    return () => {
-      window.removeEventListener('keydown', handleKeyPressCallback);
-    };
+    return () => window.removeEventListener('keydown', handleKeyPressCallback);
   }, [taskStarted, taskFinished, currentTrial]);
 
   const finishTask = () => {
@@ -227,6 +194,8 @@ const FlankerTask = () => {
     setCurrentTrial(null);
     clearTimeout(stimulusTimeoutRef.current);
     clearTimeout(taskIntervalRef.current);
+    
+    if (onTaskEnd) onTaskEnd();
 
     const totalCorrect = congruentCorrectRef.current + incongruentCorrectRef.current;
     const totalTrials = totalTrialsRef.current;
@@ -266,126 +235,173 @@ const FlankerTask = () => {
     setIncongruentRTimes([]);
     clearTimeout(stimulusTimeoutRef.current);
     clearTimeout(taskIntervalRef.current);
+    if (onTaskEnd) onTaskEnd();
   };
 
   const avgReactionTime = calculateAverageReactionTime(reactionTimes);
   const totalCorrect = congruentCorrect + incongruentCorrect;
   const totalTrials = totalTrialsRef.current;
+  const progressPercent = (trialIndex / totalTrialsRef.current) * 100;
 
   return (
     <div className="task-container">
       <div className="task-header">
         <h2>Flanker Task</h2>
         <p className="task-description">
-          Identify the direction of the <strong>CENTER ARROW</strong> (ignore the surrounding arrows).
-          <br />
-          Press <strong>← (Left Arrow)</strong> if center points left, or <strong>→ (Right Arrow)</strong> if points right.
-          <br />
-          React as quickly as possible!
+          Identify the direction of the <strong>CENTER ARROW</strong> (ignore surrounding arrows).
+          Press <span className="key-highlight">←</span> for left or <span className="key-highlight">→</span> for right.
         </p>
       </div>
 
-      <div className="controls">
+      <div className="task-controls">
         <button
-          className="btn btn-primary"
+          className="task-btn task-btn-primary"
           onClick={startTask}
           disabled={taskStarted}
         >
-          {taskStarted ? 'Task Running...' : 'Start Task'}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          {taskStarted ? 'Running...' : 'Start Task'}
         </button>
         <button
-          className="btn btn-secondary"
+          className="task-btn task-btn-secondary"
           onClick={resetTask}
           disabled={!taskFinished && !taskStarted}
         >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+          </svg>
           Reset
         </button>
       </div>
 
-      <div className="stimulus-area">
+      <div className="progress-section">
+        <div className="progress-info">
+          <span className="progress-label">Progress</span>
+          <span className="progress-count">{trialIndex} / {totalTrialsRef.current}</span>
+        </div>
+        <div className="progress-bar">
+          <div className="progress-fill" style={{ width: `${progressPercent}%` }}></div>
+        </div>
+      </div>
+
+      <div className={`stimulus-area ${taskStarted && currentTrial ? 'active' : ''}`}>
         {currentTrial ? (
           <div className="flanker-display">
-            <span className="flanker-distractor">{currentTrial.distractors[0]}</span>
-            <span className="flanker-distractor">{currentTrial.distractors[1]}</span>
-            <span className="flanker-target">{currentTrial.target}</span>
-            <span className="flanker-distractor">{currentTrial.distractors[2]}</span>
-            <span className="flanker-distractor">{currentTrial.distractors[3]}</span>
+            <span className="flanker-arrow distractor">{currentTrial.distractors[0]}</span>
+            <span className="flanker-arrow distractor">{currentTrial.distractors[1]}</span>
+            <span className="flanker-arrow target">{currentTrial.target}</span>
+            <span className="flanker-arrow distractor">{currentTrial.distractors[2]}</span>
+            <span className="flanker-arrow distractor">{currentTrial.distractors[3]}</span>
           </div>
         ) : (
-          <span>{taskFinished ? 'Task Complete' : 'Waiting...'}</span>
+          <span className={taskFinished ? 'stimulus-complete' : 'stimulus-waiting'}>
+            {taskFinished ? 'Task Complete!' : 'Press Start to begin...'}
+          </span>
         )}
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', margin: '20px 0' }}>
+      <div className="response-buttons">
         <button
-          className="btn btn-primary"
+          className="response-btn left"
           onClick={() => handleResponse('<')}
           disabled={!taskStarted || taskFinished || !currentTrial}
-          style={{ fontSize: '20px', padding: '15px 40px' }}
         >
-          ← Left
+          <span className="response-btn-icon">←</span>
+          <span className="response-btn-text">Left</span>
         </button>
         <button
-          className="btn btn-primary"
+          className="response-btn right"
           onClick={() => handleResponse('>')}
           disabled={!taskStarted || taskFinished || !currentTrial}
-          style={{ fontSize: '20px', padding: '15px 40px' }}
         >
-          Right →
+          <span className="response-btn-icon">→</span>
+          <span className="response-btn-text">Right</span>
         </button>
       </div>
 
-      <div className="stats-display">
-        <div className="stat-card">
-          <div className="stat-label">Progress</div>
-          <div className="stat-value">{trialIndex}/{totalTrialsRef.current}</div>
+      <div className="keyboard-hints">
+        <div className="keyboard-hint">
+          <span className="keyboard-key">←</span>
+          <span>Left Arrow</span>
         </div>
+        <div className="keyboard-hint">
+          <span className="keyboard-key">→</span>
+          <span>Right Arrow</span>
+        </div>
+      </div>
+
+      <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-label">Congruent Correct</div>
+          <div className="stat-label">Congruent</div>
           <div className="stat-value">{congruentCorrect}/{congruentTotal}</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label">Incongruent Correct</div>
+          <div className="stat-label">Incongruent</div>
           <div className="stat-value">{incongruentCorrect}/{incongruentTotal}</div>
         </div>
         <div className="stat-card">
           <div className="stat-label">Total Correct</div>
-          <div className="stat-value">{totalCorrect}/{totalTrials}</div>
+          <div className="stat-value success">{totalCorrect}</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Accuracy</div>
+          <div className="stat-value">{calculateAccuracy(totalCorrect, trialIndex)}%</div>
         </div>
       </div>
 
       {taskFinished && (
         <div className="results-container">
-          <h3>Task Results</h3>
-          <div className="result-item">
-            <strong>Total Trials:</strong> {totalTrialsRef.current}
+          <div className="results-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <h3>Task Results</h3>
           </div>
-          <div className="result-item">
-            <strong>Congruent Trials:</strong> {congruentTotal} (Correct: {congruentCorrect})
-          </div>
-          <div className="result-item">
-            <strong>Incongruent Trials:</strong> {incongruentTotal} (Correct: {incongruentCorrect})
-          </div>
-          <div className="result-item">
-            <strong>Overall Accuracy:</strong> {calculateAccuracy(totalCorrect, totalTrials)}%
-          </div>
-          <div className="result-item">
-            <strong>Congruent Accuracy:</strong> {calculateAccuracy(congruentCorrect, congruentTotal)}%
-          </div>
-          <div className="result-item">
-            <strong>Incongruent Accuracy:</strong> {calculateAccuracy(incongruentCorrect, incongruentTotal)}%
-          </div>
-          <div className="result-item">
-            <strong>Average Reaction Time (Overall):</strong> {reactionTimes.length > 0 ? formatTime(parseFloat(avgReactionTime)) : 'N/A'}
-          </div>
-          <div className="result-item">
-            <strong>Average Reaction Time (Congruent):</strong> {congruentRTimes.length > 0 ? formatTime(parseFloat(calculateAverageReactionTime(congruentRTimes))) : 'N/A'}
-          </div>
-          <div className="result-item">
-            <strong>Average Reaction Time (Incongruent):</strong> {incongruentRTimes.length > 0 ? formatTime(parseFloat(calculateAverageReactionTime(incongruentRTimes))) : 'N/A'}
-          </div>
-          <div className="result-item">
-            <strong>Congruency Effect:</strong> {reactionTimes.length > 0 ? (parseFloat(calculateAverageReactionTime(incongruentRTimes) - calculateAverageReactionTime(congruentRTimes)).toFixed(2) > 0 ? '+' : '') + parseFloat(calculateAverageReactionTime(incongruentRTimes) - calculateAverageReactionTime(congruentRTimes)).toFixed(2) + 'ms' : 'N/A'}
+          <div className="results-body">
+            <div className="result-item">
+              <span className="result-label">Total Trials</span>
+              <span className="result-value">{totalTrialsRef.current}</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">Congruent Trials</span>
+              <span className="result-value">{congruentTotal} (Correct: {congruentCorrect})</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">Incongruent Trials</span>
+              <span className="result-value">{incongruentTotal} (Correct: {incongruentCorrect})</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">Overall Accuracy</span>
+              <span className="result-value good">{calculateAccuracy(totalCorrect, totalTrials)}%</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">Congruent Accuracy</span>
+              <span className="result-value">{calculateAccuracy(congruentCorrect, congruentTotal)}%</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">Incongruent Accuracy</span>
+              <span className="result-value">{calculateAccuracy(incongruentCorrect, incongruentTotal)}%</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">Avg RT (Overall)</span>
+              <span className="result-value">{reactionTimes.length > 0 ? formatTime(parseFloat(avgReactionTime)) : 'N/A'}</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">Avg RT (Congruent)</span>
+              <span className="result-value">{congruentRTimes.length > 0 ? formatTime(parseFloat(calculateAverageReactionTime(congruentRTimes))) : 'N/A'}</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">Avg RT (Incongruent)</span>
+              <span className="result-value">{incongruentRTimes.length > 0 ? formatTime(parseFloat(calculateAverageReactionTime(incongruentRTimes))) : 'N/A'}</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">Congruency Effect</span>
+              <span className="result-value">{reactionTimes.length > 0 ? (parseFloat(calculateAverageReactionTime(incongruentRTimes) - calculateAverageReactionTime(congruentRTimes)).toFixed(2) > 0 ? '+' : '') + parseFloat(calculateAverageReactionTime(incongruentRTimes) - calculateAverageReactionTime(congruentRTimes)).toFixed(2) + 'ms' : 'N/A'}</span>
+            </div>
           </div>
         </div>
       )}

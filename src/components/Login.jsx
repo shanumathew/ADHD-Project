@@ -10,6 +10,7 @@ import { auth } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import '../styles/auth.css';
+import '../styles/loading.css';
 
 const Login = () => {
   const [isSignup, setIsSignup] = useState(false);
@@ -136,7 +137,12 @@ const Login = () => {
             className="btn btn-primary btn-full"
             style={{ marginBottom: '15px' }}
           >
-            {loading ? 'Processing...' : isSignup ? 'Sign Up' : 'Sign In'}
+            {loading ? (
+              <span className="loading-spinner-small">
+                <span className="spinner"></span>
+                Processing
+              </span>
+            ) : isSignup ? 'Sign Up' : 'Sign In'}
           </button>
         </form>
 

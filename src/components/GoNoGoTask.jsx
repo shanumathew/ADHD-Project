@@ -9,22 +9,20 @@ import { logResults, calculateAccuracy, calculateAverageReactionTime, formatTime
  * Tracks commission errors, omission errors, and reaction time.
  */
 
-const GoNoGoTask = () => {
+const GoNoGoTask = ({ onTaskStart, onTaskEnd }) => {
   const [taskStarted, setTaskStarted] = useState(false);
   const [taskFinished, setTaskFinished] = useState(false);
-  const [currentStimulus, setCurrentStimulus] = useState(null); // 'go' or 'nogo'
+  const [currentStimulus, setCurrentStimulus] = useState(null);
   const [stimulusCount, setStimulusCount] = useState(0);
   
-  // Results tracking
   const [goTrials, setGoTrials] = useState(0);
   const [nogoTrials, setNogoTrials] = useState(0);
-  const [correctGo, setCorrectGo] = useState(0); // Responded to Go
-  const [omissionErrors, setOmissionErrors] = useState(0); // Didn't respond to Go
-  const [commissionErrors, setCommissionErrors] = useState(0); // Responded to No-Go
-  const [correctReject, setCorrectReject] = useState(0); // Didn't respond to No-Go
+  const [correctGo, setCorrectGo] = useState(0);
+  const [omissionErrors, setOmissionErrors] = useState(0);
+  const [commissionErrors, setCommissionErrors] = useState(0);
+  const [correctReject, setCorrectReject] = useState(0);
   const [reactionTimes, setReactionTimes] = useState([]);
   
-  // Refs for accurate result tracking (to avoid stale closures)
   const goTrialsRef = useRef(0);
   const nogoTrialsRef = useRef(0);
   const correctGoRef = useRef(0);
@@ -33,14 +31,14 @@ const GoNoGoTask = () => {
   const correctRejectRef = useRef(0);
   const reactionTimesRef = useRef([]);
   
-  // State variables
   const stimulusStartTimeRef = useRef(null);
   const stimulusTimeoutRef = useRef(null);
   const taskIntervalRef = useRef(null);
   const totalStimuliRef = useRef(60);
-  const goProbabilityRef = useRef(0.7); // 70% Go, 30% No-Go
+  const goProbabilityRef = useRef(0.7);
   const respondedRef = useRef(false);
-  const currentCountRef = useRef(0); // Track actual count for progression
+  const currentCountRef = useRef(0);
+  const currentStimulusRef = useRef(null);
   
   const startTask = () => {
     setTaskStarted(true);
@@ -54,7 +52,6 @@ const GoNoGoTask = () => {
     setReactionTimes([]);
     setStimulusCount(0);
     
-    // Initialize refs
     goTrialsRef.current = 0;
     nogoTrialsRef.current = 0;
     correctGoRef.current = 0;
@@ -62,13 +59,11 @@ const GoNoGoTask = () => {
     commissionErrorsRef.current = 0;
     correctRejectRef.current = 0;
     reactionTimesRef.current = [];
-    
     currentCountRef.current = 0;
+    
+    if (onTaskStart) onTaskStart();
     presentNextStimulus();
   };
-
-  // Store stimulus type in ref so we can reference it in cleanup
-  const currentStimulusRef = useRef(null);
 
   const presentNextStimulus = () => {
     if (currentCountRef.current >= totalStimuliRef.current) {
@@ -76,7 +71,6 @@ const GoNoGoTask = () => {
       return;
     }
 
-    // 70% Go, 30% No-Go
     const isGo = Math.random() < goProbabilityRef.current;
     const stimulus = isGo ? 'go' : 'nogo';
     currentStimulusRef.current = stimulus;
@@ -97,27 +91,20 @@ const GoNoGoTask = () => {
     currentCountRef.current += 1;
   };
 
-  // Auto-advance when stimulus is visible and task is running
   useEffect(() => {
-    if (!taskStarted || taskFinished || !currentStimulus) {
-      return;
-    }
+    if (!taskStarted || taskFinished || !currentStimulus) return;
 
-    // Clear any pending timeouts
     if (stimulusTimeoutRef.current) clearTimeout(stimulusTimeoutRef.current);
     if (taskIntervalRef.current) clearTimeout(taskIntervalRef.current);
 
-    // Set timeout to clear stimulus after 2 seconds
     stimulusTimeoutRef.current = setTimeout(() => {
       const wasGo = currentStimulusRef.current === 'go';
       
       if (!respondedRef.current) {
         if (wasGo) {
-          // Go trial with no response = omission error
           omissionErrorsRef.current += 1;
           setOmissionErrors(prev => prev + 1);
         } else {
-          // No-Go trial with no response = correct rejection
           correctRejectRef.current += 1;
           setCorrectReject(prev => prev + 1);
         }
@@ -132,11 +119,8 @@ const GoNoGoTask = () => {
     };
   }, [taskStarted, taskFinished, currentStimulus]);
 
-  // Auto-present next stimulus after ISI when stimulus is cleared
   useEffect(() => {
-    if (!taskStarted || taskFinished || currentStimulus !== null) {
-      return;
-    }
+    if (!taskStarted || taskFinished || currentStimulus !== null) return;
 
     taskIntervalRef.current = setTimeout(() => {
       presentNextStimulus();
@@ -157,26 +141,17 @@ const GoNoGoTask = () => {
     clearTimeout(taskIntervalRef.current);
 
     if (currentStimulus === 'go') {
-      // Go trial with response = correct - track RT only for correct Go responses
       correctGoRef.current += 1;
       setCorrectGo(prev => prev + 1);
       reactionTimesRef.current.push(reactionTime);
       setReactionTimes(prev => [...prev, reactionTime]);
     } else {
-      // No-Go trial with response = commission error - don't track RT
       commissionErrorsRef.current += 1;
       setCommissionErrors(prev => prev + 1);
     }
 
     setCurrentStimulus(null);
     taskIntervalRef.current = setTimeout(presentNextStimulus, 500);
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.code === 'Space') {
-      e.preventDefault();
-      handleResponse();
-    }
   };
 
   useEffect(() => {
@@ -190,9 +165,7 @@ const GoNoGoTask = () => {
     };
 
     window.addEventListener('keydown', handleKeyPressCallback);
-    return () => {
-      window.removeEventListener('keydown', handleKeyPressCallback);
-    };
+    return () => window.removeEventListener('keydown', handleKeyPressCallback);
   }, [taskStarted, taskFinished, currentStimulus]);
 
   const finishTask = () => {
@@ -201,23 +174,20 @@ const GoNoGoTask = () => {
     setCurrentStimulus(null);
     clearTimeout(stimulusTimeoutRef.current);
     clearTimeout(taskIntervalRef.current);
-
-    const totalTrials = totalStimuliRef.current;
-    const goAccuracy = calculateAccuracy(correctGoRef.current, goTrialsRef.current);
-    const nogoAccuracy = calculateAccuracy(correctRejectRef.current, nogoTrialsRef.current);
-    const avgRT = calculateAverageReactionTime(reactionTimesRef.current);
+    
+    if (onTaskEnd) onTaskEnd();
 
     const results = {
-      totalTrials,
+      totalTrials: totalStimuliRef.current,
       goTrials: goTrialsRef.current,
       nogoTrials: nogoTrialsRef.current,
       correctGo: correctGoRef.current,
       omissionErrors: omissionErrorsRef.current,
       commissionErrors: commissionErrorsRef.current,
       correctReject: correctRejectRef.current,
-      goAccuracy,
-      nogoAccuracy,
-      averageReactionTime: avgRT,
+      goAccuracy: calculateAccuracy(correctGoRef.current, goTrialsRef.current),
+      nogoAccuracy: calculateAccuracy(correctRejectRef.current, nogoTrialsRef.current),
+      averageReactionTime: calculateAverageReactionTime(reactionTimesRef.current),
       reactionTimes: reactionTimesRef.current
     };
 
@@ -238,115 +208,145 @@ const GoNoGoTask = () => {
     setReactionTimes([]);
     clearTimeout(stimulusTimeoutRef.current);
     clearTimeout(taskIntervalRef.current);
+    if (onTaskEnd) onTaskEnd();
   };
 
   const avgReactionTime = calculateAverageReactionTime(reactionTimes);
+  const progressPercent = (stimulusCount / totalStimuliRef.current) * 100;
 
   return (
     <div className="task-container">
       <div className="task-header">
         <h2>Go/No-Go Task</h2>
         <p className="task-description">
-          Press <strong>SPACEBAR</strong> when you see a <span style={{ color: '#2ecc71', fontWeight: 'bold' }}>GREEN</span> circle.
+          Press <span className="key-highlight">SPACE</span> when you see the <span style={{ color: '#2ecc71', fontWeight: 700 }}>GREEN</span> circle.
           <br />
-          Do <strong>NOT</strong> press when you see a <span style={{ color: '#e74c3c', fontWeight: 'bold' }}>RED</span> circle.
-          <br />
-          React as quickly as possible!
+          Do NOT press when you see the <span style={{ color: '#e74c3c', fontWeight: 700 }}>RED</span> circle.
         </p>
       </div>
 
-      <div className="controls">
+      <div className="task-controls">
         <button
-          className="btn btn-primary"
+          className="task-btn task-btn-primary"
           onClick={startTask}
           disabled={taskStarted}
         >
-          {taskStarted ? 'Task Running...' : 'Start Task'}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          {taskStarted ? 'Running...' : 'Start Task'}
         </button>
         <button
-          className="btn btn-secondary"
+          className="task-btn task-btn-secondary"
           onClick={resetTask}
           disabled={!taskFinished && !taskStarted}
         >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+          </svg>
           Reset
         </button>
       </div>
 
-      <div className="stimulus-area">
+      <div className="progress-section">
+        <div className="progress-info">
+          <span className="progress-label">Progress</span>
+          <span className="progress-count">{stimulusCount} / {totalStimuliRef.current}</span>
+        </div>
+        <div className="progress-bar">
+          <div className="progress-fill" style={{ width: `${progressPercent}%` }}></div>
+        </div>
+      </div>
+
+      <div className="stimulus-area" onClick={handleResponse}>
         {currentStimulus ? (
-          <div
-            className="stimulus-circle"
-            style={{
-              backgroundColor: currentStimulus === 'go' ? '#2ecc71' : '#e74c3c'
-            }}
-            onClick={handleResponse}
-          >
-            {currentStimulus === 'go' ? 'GO' : 'NOGO'}
+          <div className={`stimulus-circle ${currentStimulus}`}>
+            {currentStimulus === 'go' ? 'GO' : 'STOP'}
           </div>
         ) : (
-          <span>{taskFinished ? 'Task Complete' : 'Waiting...'}</span>
+          <span className={taskFinished ? 'stimulus-complete' : 'stimulus-waiting'}>
+            {taskFinished ? 'Task Complete!' : 'Press Start to begin...'}
+          </span>
         )}
       </div>
 
-      <div className="stats-display">
-        <div className="stat-card">
-          <div className="stat-label">Progress</div>
-          <div className="stat-value">{stimulusCount}/{totalStimuliRef.current}</div>
+      <div className="keyboard-hints">
+        <div className="keyboard-hint">
+          <span className="keyboard-key">SPACE</span>
+          <span>Press for GREEN only</span>
         </div>
+      </div>
+
+      <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-label">Go Trials</div>
           <div className="stat-value">{goTrials}</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label">No-Go Trials</div>
-          <div className="stat-value">{nogoTrials}</div>
-        </div>
-        <div className="stat-card">
           <div className="stat-label">Correct Go</div>
-          <div className="stat-value">{correctGo}</div>
+          <div className="stat-value success">{correctGo}</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label">Commission Errors</div>
-          <div className="stat-value" style={{ color: '#e74c3c' }}>{commissionErrors}</div>
+          <div className="stat-label">Commission Err</div>
+          <div className="stat-value error">{commissionErrors}</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label">Omission Errors</div>
-          <div className="stat-value" style={{ color: '#e74c3c' }}>{omissionErrors}</div>
+          <div className="stat-label">Omission Err</div>
+          <div className="stat-value error">{omissionErrors}</div>
         </div>
       </div>
 
       {taskFinished && (
         <div className="results-container">
-          <h3>Task Results</h3>
-          <div className="result-item">
-            <strong>Total Trials:</strong> {totalStimuliRef.current}
+          <div className="results-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <h3>Task Results</h3>
           </div>
-          <div className="result-item">
-            <strong>Go Trials:</strong> {goTrials}
-          </div>
-          <div className="result-item">
-            <strong>No-Go Trials:</strong> {nogoTrials}
-          </div>
-          <div className="result-item">
-            <strong>Correct Go Responses:</strong> {correctGo}
-          </div>
-          <div className="result-item">
-            <strong>Omission Errors (missed Go):</strong> {omissionErrors}
-          </div>
-          <div className="result-item">
-            <strong>Commission Errors (wrong No-Go response):</strong> {commissionErrors}
-          </div>
-          <div className="result-item">
-            <strong>Correct Rejections (No-Go):</strong> {correctReject}
-          </div>
-          <div className="result-item">
-            <strong>Go Accuracy:</strong> {calculateAccuracy(correctGo, goTrials)}%
-          </div>
-          <div className="result-item">
-            <strong>No-Go Accuracy:</strong> {calculateAccuracy(correctReject, nogoTrials)}%
-          </div>
-          <div className="result-item">
-            <strong>Average Reaction Time:</strong> {reactionTimes.length > 0 ? formatTime(parseFloat(avgReactionTime)) : 'N/A'}
+          <div className="results-body">
+            <div className="result-item">
+              <span className="result-label">Total Trials</span>
+              <span className="result-value">{totalStimuliRef.current}</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">Go Trials</span>
+              <span className="result-value">{goTrials}</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">No-Go Trials</span>
+              <span className="result-value">{nogoTrials}</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">Correct Go</span>
+              <span className="result-value good">{correctGo}</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">Omission Errors</span>
+              <span className="result-value bad">{omissionErrors}</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">Commission Errors</span>
+              <span className="result-value bad">{commissionErrors}</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">Correct Rejections</span>
+              <span className="result-value good">{correctReject}</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">Go Accuracy</span>
+              <span className="result-value">{calculateAccuracy(correctGo, goTrials)}%</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">No-Go Accuracy</span>
+              <span className="result-value">{calculateAccuracy(correctReject, nogoTrials)}%</span>
+            </div>
+            <div className="result-item">
+              <span className="result-label">Avg Reaction Time</span>
+              <span className="result-value">{reactionTimes.length > 0 ? formatTime(parseFloat(avgReactionTime)) : 'N/A'}</span>
+            </div>
           </div>
         </div>
       )}
