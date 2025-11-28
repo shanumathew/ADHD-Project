@@ -186,7 +186,16 @@ const CPTTask = ({ onTaskStart, onTaskEnd }) => {
       reactionTimesMs: reactionTimesRef.current.map(rt => parseFloat(rt.toFixed(2)))
     };
 
-    logResults('Continuous Performance Task (CPT)', results);
+    const taskConfig = {
+      taskName: 'Continuous Performance Task (CPT)',
+      targetLetter: targetLetter,
+      totalStimuli: totalStimuliRef.current,
+      targetProbability: targetProbabilityRef.current,
+      stimulusDuration: '1500ms',
+      interStimulusInterval: '500ms'
+    };
+
+    logResults('Continuous Performance Task (CPT)', results, taskConfig);
   };
 
   const resetTask = () => {

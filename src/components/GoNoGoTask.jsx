@@ -191,7 +191,17 @@ const GoNoGoTask = ({ onTaskStart, onTaskEnd }) => {
       reactionTimes: reactionTimesRef.current
     };
 
-    logResults('Go/No-Go Task', results);
+    const taskConfig = {
+      taskName: 'Go/No-Go Task',
+      totalStimuli: totalStimuliRef.current,
+      goProbability: goProbabilityRef.current,
+      stimulusDuration: '2000ms',
+      interStimulusInterval: '500ms',
+      goStimulus: 'Green Circle',
+      nogoStimulus: 'Red Circle'
+    };
+
+    logResults('Go/No-Go Task', results, taskConfig);
   };
 
   const resetTask = () => {

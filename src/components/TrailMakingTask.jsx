@@ -117,7 +117,15 @@ const TrailMakingTask = ({ onTaskStart, onTaskEnd }) => {
       accuracy: (((totalItemsRef.current - errorsRef.current) / totalItemsRef.current) * 100).toFixed(2)
     };
 
-    logResults('Trail-Making / Sorting Task', results);
+    const taskConfig = {
+      taskName: 'Trail Making Task',
+      taskType: taskType,
+      taskTypeLabel: taskType === 'numbers' ? 'Numbers (1-15)' : 'Letters (A-O)',
+      totalItems: totalItemsRef.current,
+      measureType: 'Completion Time & Errors'
+    };
+
+    logResults('Trail Making Task', results, taskConfig);
   };
 
   const resetTask = () => {

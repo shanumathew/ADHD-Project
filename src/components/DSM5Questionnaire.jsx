@@ -276,6 +276,134 @@ const DSM5Questionnaire = () => {
     const calculatedResults = calculateResults();
     setResults(calculatedResults);
     setShowResults(true);
+    
+    // Save DSM-5 results to Firestore
+    saveDSM5Results(calculatedResults);
+  };
+
+  const saveDSM5Results = async (calculatedResults) => {
+    try {
+      console.log('📝 Saving DSM-5 results...');
+      
+      const fb = await import('../firebase');
+      const firestore = await import('firebase/firestore');
+      const db = fb.db;
+      const auth = fb.auth;
+      
+      let user = auth?.currentUser;
+      let retries = 0;
+      
+      while (!user && retries < 5) {
+        console.log('⏳ Waiting for auth to be ready... (attempt', retries + 1, ')');
+        await new Promise(r => setTimeout(r, 500));
+        user = auth?.currentUser;
+        retries++;
+      }
+      
+      if (!user) {
+        console.error('❌ No authenticated user found');
+        return;
+      }
+      
+      // Prepare the detailed responses for storage with full question info
+      const detailedResponses = {
+        inattention: [],
+        hyperactivity: [],
+        impairment: []
+      };
+      
+      // Frequency labels for score interpretation
+      const frequencyLabels = ['Never', 'Rarely', 'Sometimes', 'Often', 'Very Often'];
+      const severityLabels = ['Not at all', 'Slightly', 'Moderately', 'Considerably', 'Extremely'];
+      
+      // Map responses to their sections with full details
+      sections.inattention.questions.forEach(q => {
+        const score = responses[q.id];
+        detailedResponses.inattention.push({
+          questionId: q.id,
+          questionText: q.text,
+          questionDescription: q.description,
+          score: score !== undefined ? score : null,
+          scoreLabel: score !== undefined ? frequencyLabels[score] : 'Not answered'
+        });
+      });
+      
+      sections.hyperactivity.questions.forEach(q => {
+        const score = responses[q.id];
+        detailedResponses.hyperactivity.push({
+          questionId: q.id,
+          questionText: q.text,
+          questionDescription: q.description,
+          score: score !== undefined ? score : null,
+          scoreLabel: score !== undefined ? frequencyLabels[score] : 'Not answered'
+        });
+      });
+      
+      sections.impairment.questions.forEach(q => {
+        const score = responses[q.id];
+        let scoreLabel = 'Not answered';
+        if (score !== undefined) {
+          if (q.type === 'yesno') {
+            scoreLabel = score === 1 ? 'Yes' : 'No';
+          } else if (q.type === 'severity') {
+            scoreLabel = severityLabels[score];
+          }
+        }
+        detailedResponses.impairment.push({
+          questionId: q.id,
+          questionText: q.text,
+          questionDescription: q.description,
+          questionType: q.type,
+          score: score !== undefined ? score : null,
+          scoreLabel
+        });
+      });
+      
+      const docData = {
+        userId: user.uid,
+        email: user.email || 'no-email',
+        displayName: user.displayName || 'User',
+        taskName: 'DSM-5 ADHD Assessment',
+        taskType: 'dsm5_questionnaire',
+        results: {
+          ...calculatedResults,
+          additionalNotes: additionalNotes.trim() || null
+        },
+        responses: detailedResponses,
+        recordedAt: firestore.serverTimestamp()
+      };
+      
+      console.log('💾 Saving DSM-5 document:', docData);
+      
+      const docRef = await firestore.addDoc(
+        firestore.collection(db, 'results'),
+        docData
+      );
+      
+      console.log('✅ DSM-5 results saved to Firestore with ID:', docRef.id);
+      
+      // Also save to localStorage as backup
+      try {
+        const existingData = JSON.parse(localStorage.getItem('adhd_assessment_results') || '[]');
+        existingData.push({
+          timestamp: new Date().toISOString(),
+          task: 'DSM-5 ADHD Assessment',
+          taskType: 'dsm5_questionnaire',
+          results: docData.results,
+          responses: detailedResponses
+        });
+        localStorage.setItem('adhd_assessment_results', JSON.stringify(existingData));
+        console.log('✅ Also saved to localStorage');
+      } catch (localErr) {
+        console.warn('Could not save to localStorage:', localErr);
+      }
+      
+      // Emit event to notify ResultsPanel
+      window.dispatchEvent(new Event('resultsUpdated'));
+      
+    } catch (err) {
+      console.error('❌ Error saving DSM-5 results:', err);
+    }
   };
 
   const isCurrentSectionComplete = () => {

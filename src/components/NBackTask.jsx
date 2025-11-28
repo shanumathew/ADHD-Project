@@ -232,7 +232,16 @@ const NBackTask = ({ onTaskStart, onTaskEnd }) => {
       sequence: stimulusSequence.join('')
     };
 
-    logResults(`N-Back Task (${nBackLevel}-Back)`, results);
+    const taskConfig = {
+      taskName: `N-Back Task (${nBackLevel}-Back)`,
+      nBackLevel: nBackLevel,
+      totalStimuli: totalStimuliRef.current,
+      stimulusDuration: '2500ms',
+      interStimulusInterval: '500ms',
+      stimulusSet: 'A-Z Letters'
+    };
+
+    logResults(`N-Back Task (${nBackLevel}-Back)`, results, taskConfig);
   };
 
   const resetTask = () => {

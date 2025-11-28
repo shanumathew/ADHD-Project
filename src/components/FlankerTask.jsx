@@ -218,7 +218,16 @@ const FlankerTask = ({ onTaskStart, onTaskEnd }) => {
       reactionTimes: reactionTimesRef.current
     };
 
-    logResults('Flanker Task', results);
+    const taskConfig = {
+      taskName: 'Flanker Task',
+      totalTrials: totalTrialsRef.current,
+      stimulusDuration: '3000ms',
+      interTrialInterval: '500ms',
+      targetStimulus: 'Center Arrow',
+      distractorStimulus: 'Surrounding Arrows'
+    };
+
+    logResults('Flanker Task', results, taskConfig);
   };
 
   const resetTask = () => {

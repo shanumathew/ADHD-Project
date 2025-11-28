@@ -2,17 +2,64 @@
  * Utility functions for ADHD assessment tasks
  */
 
-export const logResults = (taskName, results) => {
+// Task name mapping for pre-task questionnaire lookup
+const TASK_NAME_MAP = {
+  'Continuous Performance Task (CPT)': 'Continuous Performance Task',
+  'Go/No-Go Task': 'Go/No-Go Task',
+  'N-Back Task': 'N-Back Task',
+  'Flanker Task': 'Flanker Task',
+  'Trail Making Task': 'Trail Making Task',
+  'Trail-Making / Sorting Task': 'Trail Making Task'
+};
+
+export const logResults = (taskName, results, taskConfig = {}) => {
   const timestamp = new Date().toISOString();
+  
+  // Get pre-task questionnaire data from sessionStorage
+  // Try multiple possible key formats
+  let preTaskData = null;
+  try {
+    const mappedName = TASK_NAME_MAP[taskName] || taskName;
+    const possibleKeys = [
+      `preTaskResponses_${taskName}`,
+      `preTaskResponses_${mappedName}`,
+      'pretask_responses'
+    ];
+    
+    for (const key of possibleKeys) {
+      const stored = sessionStorage.getItem(key);
+      if (stored) {
+        preTaskData = JSON.parse(stored);
+        console.log('✅ Found pre-task data with key:', key);
+        break;
+      }
+    }
+  } catch (err) {
+    console.warn('Could not retrieve pre-task data:', err);
+  }
+  
+  // Build comprehensive log entry
   const logEntry = {
     timestamp,
     task: taskName,
-    results
+    taskType: 'cognitive_task',
+    taskConfig: {
+      ...taskConfig,
+      completedAt: timestamp
+    },
+    results,
+    preTaskContext: preTaskData
   };
   
   // Log to console
   console.log(`[${taskName}] Results:`, logEntry);
   console.log('📝 Attempting to save results for task:', taskName);
+  if (preTaskData) {
+    console.log('📋 Pre-task context included:', preTaskData);
+  }
+  if (Object.keys(taskConfig).length > 0) {
+    console.log('⚙️ Task config included:', taskConfig);
+  }
   
   // Save to localStorage
   try {
@@ -62,7 +109,13 @@ export const logResults = (taskName, results) => {
         email: user.email || 'no-email',
         displayName: user.displayName || 'User',
         taskName,
+        taskType: 'cognitive_task',
+        taskConfig: {
+          ...taskConfig,
+          completedAt: timestamp
+        },
         results,
+        preTaskContext: preTaskData,
         recordedAt: firestore.serverTimestamp()
       };
 

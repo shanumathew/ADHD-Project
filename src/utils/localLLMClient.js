@@ -87,9 +87,10 @@ class LocalLLMClient {
    * Generate AI insights for cognitive profile (JSON response)
    * @param {object} results - Task results data
    * @param {object} scores - Composite scores
+   * @param {object} additionalData - Additional context (reaction times, DSM-5, medication)
    * @returns {Promise<object>} AI insights JSON
    */
-  async generateCognitiveInsights(results, scores) {
+  async generateCognitiveInsights(results, scores, additionalData = {}) {
     const isConnected = await this.checkConnection();
     if (!isConnected) {
       throw new Error('Local LLM server not running');
@@ -103,7 +104,8 @@ class LocalLLMClient {
         },
         body: JSON.stringify({
           results,
-          scores
+          scores,
+          additionalData
         })
       });
 
